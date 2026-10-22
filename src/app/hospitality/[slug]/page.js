@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import PageFallback from "@/components/site/PageFallback";
 import ProjectDetail from "@/components/site/ProjectDetail";
 import { findProject, projectsIn } from "@/data/projects";
 
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }) {
 // Reading the URL happens inside Suspense, so navigation stays instant
 export default function HospitalityProjectPage({ params }) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PageFallback active="interiors" />}>
       <Details params={params} />
     </Suspense>
   );

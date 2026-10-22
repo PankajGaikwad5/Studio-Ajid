@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import PageFallback from "@/components/site/PageFallback";
 import ProductDetail from "@/components/site/ProductDetail";
 import { findProduct, products } from "@/data/products";
 
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }) {
 // Reading the URL happens inside Suspense, so navigation stays instant
 export default function ProductPage({ params }) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PageFallback active="gallery" />}>
       <Details params={params} />
     </Suspense>
   );

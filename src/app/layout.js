@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
       </head>
-      <body className="bg-[#09090b] text-[#edece6] antialiased selection:bg-[#d4af37] selection:text-black overflow-x-hidden font-sans">
+      <body className="bg-beige text-[#edece6] antialiased selection:bg-[#d4af37] selection:text-black overflow-x-hidden font-sans">
         <LanguageProvider>
           <SmoothScroll>
             {children}
