@@ -93,31 +93,22 @@ function Peek({ id, c, t, pick }) {
 }
 
 // Five tall strips; the one pointed at or focused opens wide and previews what
-// is inside. Closed strips keep their title and count; phones show every strip.
+// is inside. Closed strips keep their title and a short line; phones show every
+// strip. The site never says how many projects or pieces there are.
 function Strips({ c, t, lang, pick }) {
   const [open, setOpen] = useState(1);
-  const counts = {
-    interiors: c.projectsCount(projects.length),
-    objects: c.pieces(productsIn("objects").length),
-    gallery: c.pieces(productsIn("gallery").length),
-  };
   // The gallery strip describes the broader selection, not the studio's pieces
   const describe = (id) => (id === "gallery" ? t.navGrid.items.collection : t.navGrid.items[id]);
   const enter = { en: "Enter", ar: "ادخل" }[lang];
-  const totals = [c.projectsCount(projects.length), counts.objects, c.footer.cities];
 
   return (
     <Railed rail={RAIL} className="bg-beige text-navy">
       <div className={`${PAD} pt-20 md:pt-28 pb-24`}>
-        {/* Header: title, a line about the studio, and what there is to see */}
+        {/* Header: title, a line about the studio, and where it works */}
         <div className="grid md:grid-cols-12 gap-6 items-end pb-8 mb-8 md:mb-10 border-b border-navy/15">
           <h2 className="md:col-span-5 text-[clamp(1.75rem,3vw,2.75rem)] leading-[1.05] tracking-[-0.01em]">{c.home2.waysTitle}</h2>
           <p className="md:col-span-4 leading-relaxed max-w-[40ch]">{c.home2.body}</p>
-          <ul className="md:col-span-3 text-sm space-y-1 md:text-end">
-            {totals.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
+          <p className="md:col-span-3 text-sm md:text-end">{c.footer.cities}</p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-2 md:h-[78vh] md:min-h-[600px]">
@@ -146,22 +137,21 @@ function Strips({ c, t, lang, pick }) {
                 {/* Neutral dark overlay, never blue, so the beige type reads on any photo */}
                 <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/35 to-black/15" />
 
-                {/* Closed: count at the top, title running up from the bottom */}
+                {/* Closed: a short line at the top, title running up from the bottom */}
                 <span className={`hidden md:block absolute top-5 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap [writing-mode:vertical-rl] transition-opacity duration-500 ${isOpen ? "opacity-0" : "opacity-100"}`}>
-                  {counts[d.id] ?? describe(d.id)}
+                  {describe(d.id)}
                 </span>
                 <span className={`hidden md:block absolute bottom-6 left-1/2 -translate-x-1/2 [writing-mode:vertical-rl] rotate-180 text-xl whitespace-nowrap transition-opacity duration-500 ${isOpen ? "opacity-0" : "opacity-100"}`}>
                   {t.nav[d.id]}
                 </span>
 
-                {/* Open: count, title, description, a preview of what is inside, and a way in */}
+                {/* Open: title, description, a preview of what is inside, and a way in */}
                 <div
                   id={`strip-${d.id}`}
                   className={`absolute inset-x-0 bottom-0 p-6 md:p-9 transition-[opacity,transform] duration-700 ${EASE} ${
                     isOpen ? "opacity-100 translate-y-0 delay-200" : "md:opacity-0 md:translate-y-4 md:pointer-events-none"
                   }`}
                 >
-                  {counts[d.id] && <p className="text-sm">{counts[d.id]}</p>}
                   <h3 className="mt-2 text-[clamp(1.75rem,2.8vw,2.75rem)] leading-[1.05] tracking-[-0.01em] whitespace-nowrap">{t.nav[d.id]}</h3>
                   <p className="mt-3 max-w-[40ch]">{describe(d.id)}</p>
                   <div className="mt-6">

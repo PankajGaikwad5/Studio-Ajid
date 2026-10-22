@@ -10,7 +10,7 @@ import { projects, projectsIn } from "@/data/projects";
 
 const EASE = "ease-[cubic-bezier(0.22,1,0.36,1)]";
 
-// A calm title and count over a hairline, as on the home page, then three even
+// A calm title over a hairline, as on the home page, then three even
 // columns of landscape photographs, each captioned beneath in small capitals:
 // "NAME, CITY". "interiors" lists residential and hospitality together, with a
 // filter for each, styled like the gallery's.
@@ -32,7 +32,6 @@ export default function ProjectIndex({ category }) {
       <div className={`${PAGE_GUTTER} pt-12 md:pt-20 pb-24 md:pb-32`}>
         <div className={`flex flex-wrap items-end justify-between gap-4 pb-6 border-b border-navy/15 ${isInteriors ? "" : "mb-10 md:mb-14"}`}>
           <h1 className="text-[clamp(1.875rem,3.4vw,3rem)] leading-[1.05] tracking-[-0.01em]">{title}</h1>
-          {!isInteriors && <p className="text-sm">{c.projectsCount(list.length)}</p>}
         </div>
 
         {isInteriors && (
@@ -52,9 +51,6 @@ export default function ProjectIndex({ category }) {
                 </button>
               ))}
             </div>
-            <span className="text-sm" aria-live="polite">
-              {c.projectsCount(list.length)}
-            </span>
           </div>
         )}
 

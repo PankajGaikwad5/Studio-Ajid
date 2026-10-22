@@ -55,7 +55,6 @@ export default function GalleryIndex({ collection }) {
             <h1 className="md:col-span-7 text-[clamp(1.875rem,3.4vw,3rem)] leading-[1.05] tracking-[-0.01em]">{copy.title}</h1>
             <div className="md:col-span-5 md:pb-3">
               <p className="text-base leading-relaxed max-w-[40ch]">{copy.intro}</p>
-              <p className="mt-3 text-sm">{c.pieces(pieces.length)}</p>
             </div>
           </header>
 
@@ -79,9 +78,6 @@ export default function GalleryIndex({ collection }) {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm" aria-live="polite">
-                {c.pieces(shown.length)}
-              </span>
               <button
                 type="button"
                 onClick={() => setCols((n) => Math.max(2, n - 1))}
