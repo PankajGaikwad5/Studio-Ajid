@@ -60,6 +60,10 @@ export const pageCopy = {
       subject: "Project enquiry",
       directLabel: "Or write to us",
     },
+    notFound: {
+      title: "This page does not exist",
+      link: "Back to the home page",
+    },
     buy: {
       button: "Buy or enquire",
       title: "Buy or enquire",
@@ -178,6 +182,10 @@ export const pageCopy = {
       back: "العودة إلى النموذج",
       subject: "استفسار عن مشروع",
       directLabel: "أو راسلنا مباشرة",
+    },
+    notFound: {
+      title: "هذه الصفحة غير موجودة",
+      link: "العودة إلى الصفحة الرئيسية",
     },
     buy: {
       button: "شراء أو استفسار",

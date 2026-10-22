@@ -237,7 +237,7 @@ export default function V15Home() {
   const { c, pick, lang } = useCopy();
   const { t } = useLanguage();
   return (
-    <div className="bg-beige text-navy">
+    <div className="bg-beige text-navy selection:bg-navy selection:text-beige">
       <V15Nav />
       <main>
         <V15Hero homeHref={HOME} />

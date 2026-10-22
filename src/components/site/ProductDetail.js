@@ -162,7 +162,7 @@ export default function ProductDetail({ slug }) {
               <button type="button" onClick={share} aria-label={w.share} className="relative cursor-pointer hover:opacity-60">
                 <Share className="w-6 h-6" strokeWidth={1.25} />
                 {shared && (
-                  <span role="status" className="absolute top-full mt-2 end-0 whitespace-nowrap text-xs bg-navy text-beige px-2 py-1">
+                  <span role="status" className="absolute top-full mt-2 end-0 whitespace-nowrap text-xs bg-beige text-navy border border-navy/15 px-2 py-1">
                     {w.copied}
                   </span>
                 )}

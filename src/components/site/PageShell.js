@@ -23,7 +23,7 @@ export default function PageShell({ children, active }) {
   const { isRTL } = useCopy();
 
   return (
-    <div className="min-h-screen bg-beige text-navy">
+    <div className="min-h-screen bg-beige text-navy selection:bg-navy selection:text-beige">
       <V15Nav alwaysDocked active={active} />
       <header dir="ltr" className="px-5 sm:px-8 md:px-10 lg:px-12 pt-5 md:pt-8">
         <Link href="/" aria-label="AJID" className="inline-block">
