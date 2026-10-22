@@ -1,0 +1,13 @@
+// Layout constants shared by v15's home page, footer and inner pages
+export const PAD = "px-6 md:px-10 lg:px-14";
+
+// The left rail sits under the docked menu; phones have no column menu, so
+// the content takes the full width there
+export const RAIL = "bg-beige max-md:hidden";
+
+// One hairline above every section after the strips, so the beige runs on
+export const SECTION = `${PAD} border-t border-navy/15`;
+
+// Inner pages: clears the docked menu column from md up (the rail is w-56 at
+// md and w-66 at lg); phones use the full width
+export const PAGE_GUTTER = "px-5 sm:px-8 md:pl-64 lg:pl-76 md:pr-10 lg:pr-12";
