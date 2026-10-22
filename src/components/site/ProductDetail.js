@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Heart, Share, X } from "lucide-react";
 import PageShell from "./PageShell";
 import EnquiryForm from "./EnquiryForm";
+import Reveal from "./Reveal";
 import { useCopy } from "./useCopy";
 import { findProduct, FINISHES } from "@/data/products";
 
@@ -146,7 +147,7 @@ export default function ProductDetail({ slug }) {
           </div>
 
           {/* Title bar */}
-          <div ref={detailsRef} className="scroll-mt-4 flex items-center justify-between gap-6 px-4 md:px-5 py-3 border-b border-navy/15">
+          <div ref={detailsRef} className="scroll-mt-4 flex items-center justify-between gap-6 px-5 py-3 border-b border-navy/15">
             <h1 className="text-lg md:text-2xl uppercase leading-tight">{pick(product.name)}</h1>
             <div className="flex items-center gap-5 md:gap-7 shrink-0">
               <span className="hidden sm:inline text-lg md:text-xl">{pick(product.edition)}</span>
@@ -174,7 +175,7 @@ export default function ProductDetail({ slug }) {
           </div>
 
           {/* Description and specifications */}
-          <div className="grid md:grid-cols-2 gap-10 md:gap-8 px-4 md:px-5 pt-10 md:pt-14 pb-16 md:pb-24">
+          <Reveal className="grid md:grid-cols-2 gap-10 md:gap-8 px-5 pt-10 md:pt-14 pb-16 md:pb-24">
             <div>
               <p className="text-xl md:text-[22px] leading-snug max-w-[44ch]">{pick(product.description)}</p>
               <button type="button" onClick={() => setEnquiring(true)} className="group mt-10 inline-flex items-center gap-3 text-base cursor-pointer">
@@ -211,7 +212,7 @@ export default function ProductDetail({ slug }) {
                 </dd>
               </div>
             </dl>
-          </div>
+          </Reveal>
 
           {/* Breadcrumb band */}
           <div className="border-t border-navy/15 px-5 md:px-5 py-5">
@@ -252,7 +253,7 @@ function BuyPanel({ product, onClose }) {
       aria-modal="true"
       aria-labelledby="buy-title"
       dir={isRTL ? "rtl" : "ltr"}
-      className="fixed inset-0 z-70 bg-beige text-navy overflow-y-auto overscroll-contain animate-[fadeUp_0.3s_ease-out]"
+      className="fixed inset-0 z-70 bg-beige text-navy overflow-y-auto overscroll-contain soft-in"
       data-lenis-prevent
     >
       <div className="flex justify-end px-5 md:px-10 lg:px-12 pt-5 md:pt-8">

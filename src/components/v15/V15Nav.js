@@ -7,6 +7,8 @@ import { Flip } from "gsap/Flip";
 import { useLanguage } from "@/context/LanguageContext";
 import { INSTAGRAM_URL } from "@/data/studio";
 
+const SOFT = "ease-[cubic-bezier(0.22,1,0.36,1)]";
+
 // v13's menu in v15's two colours: stone beige on a line over the hero, folding
 // into a navy column on the left once the hero leaves. Per the client there is
 // no "Home" (the logo links home), Residential and Hospitality are combined
@@ -67,9 +69,14 @@ export default function V15Nav({ active, alwaysDocked = false }) {
     ["about", "/about", t.nav.about],
     ["contact", "/contact", t.nav.contact],
   ];
-  const link = "pointer-events-auto flex items-center gap-2 whitespace-nowrap underline-offset-4 decoration-1 hover:underline";
+  const link = "group pointer-events-auto flex items-center gap-2 whitespace-nowrap";
+  // The label's underline draws in when its link is pointed at or focused
+  const label = "u-line group-hover:[background-size:100%_1px] group-focus-visible:[background-size:100%_1px]";
 
   const menuWord = { en: "Menu", ar: "القائمة" }[isRTL ? "ar" : "en"];
+  // Phone menu entrance: each part rises in a little after the one above it
+  const rise = `transition-[opacity,transform] duration-700 ${SOFT} ${menuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`;
+  const reveal = (i) => ({ transitionDelay: menuOpen ? `${180 + i * 60}ms` : "0ms" });
   const closeWord = { en: "Close", ar: "إغلاق" }[isRTL ? "ar" : "en"];
 
   return (
@@ -103,7 +110,7 @@ export default function V15Nav({ active, alwaysDocked = false }) {
               docked ? "flex flex-col items-start gap-3 ps-5" : "flex items-center justify-between gap-5"
             }`}
           >
-            {items.map(([id, href, label]) => (
+            {items.map(([id, href, text]) => (
               <Link
                 key={id}
                 data-flip
@@ -113,21 +120,21 @@ export default function V15Nav({ active, alwaysDocked = false }) {
               >
                 <span
                   aria-hidden="true"
-                  className={`w-1.5 h-1.5 rounded-full bg-current transition-transform duration-300 ${active === id ? "scale-100" : "scale-0"}`}
+                  className={`w-1.5 h-1.5 rounded-full bg-current transition-transform duration-500 ${SOFT} ${active === id ? "scale-100" : "scale-0"}`}
                 />
-                {label}
+                <span className={label}>{text}</span>
               </Link>
             ))}
             <a data-flip href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className={link}>
               {/* Keeps it in line with the links above, which reserve room for the dot */}
               <span aria-hidden="true" className="w-1.5 h-1.5" />
-              {t.nav.instagram}
+              <span className={label}>{t.nav.instagram}</span>
             </a>
             <button
               data-flip
               type="button"
               onClick={toggleLanguage}
-              className={`pointer-events-auto whitespace-nowrap underline-offset-4 decoration-1 hover:underline cursor-pointer ${docked ? "mt-2" : ""}`}
+              className={`u-line pointer-events-auto whitespace-nowrap cursor-pointer ${docked ? "mt-2" : ""}`}
             >
               {t.nav.langToggle}
             </button>
@@ -204,30 +211,43 @@ export default function V15Nav({ active, alwaysDocked = false }) {
         ))}
       </button>
 
-      {/* Phones: the full-screen menu */}
+      {/* Phones: the full-screen menu. The beige unveils from the top, then the
+          links rise in one after another; closing folds it back up at once. */}
       <div
         id="v15-menu"
         role="dialog"
         aria-modal="true"
         aria-label={menuWord}
         dir={isRTL ? "rtl" : "ltr"}
-        className={`md:hidden fixed inset-0 z-60 bg-beige text-navy flex flex-col px-6 pt-5 pb-8 transition-opacity duration-500 ${
-          menuOpen ? "opacity-100" : "opacity-0 pointer-events-none invisible"
+        className={`md:hidden fixed inset-0 z-60 bg-beige text-navy flex flex-col px-6 pt-5 pb-8 transition-[clip-path,visibility] duration-700 ${SOFT} ${
+          menuOpen ? "[clip-path:inset(0_0_0_0)] visible" : "[clip-path:inset(0_0_100%_0)] invisible pointer-events-none"
         }`}
       >
         <div className="flex justify-end">
-          <button type="button" onClick={() => setMenuOpen(false)} className="text-sm py-2 cursor-pointer">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(false)}
+            style={reveal(0)}
+            className={`text-sm py-2 cursor-pointer ${rise}`}
+          >
             {closeWord}
           </button>
         </div>
         <nav aria-label="Studio navigation" className="flex-1 flex flex-col justify-center gap-5 text-[clamp(1.75rem,8vw,2.5rem)] leading-none">
-          {items.map(([id, href, label]) => (
-            <Link key={id} href={href} onClick={() => setMenuOpen(false)} aria-current={active === id ? "page" : undefined}>
+          {items.map(([id, href, label], i) => (
+            <Link
+              key={id}
+              href={href}
+              onClick={() => setMenuOpen(false)}
+              aria-current={active === id ? "page" : undefined}
+              style={reveal(i + 1)}
+              className={`self-start ${rise}`}
+            >
               {label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center justify-between pt-5 border-t border-navy/15 text-[15px]">
+        <div style={reveal(items.length + 1)} className={`flex items-center justify-between pt-5 border-t border-navy/15 text-[15px] ${rise}`}>
           <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">{t.nav.instagram}</a>
           <button type="button" onClick={toggleLanguage} className="cursor-pointer">{t.nav.langToggle}</button>
         </div>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { Minus, Plus } from "lucide-react";
 import PageShell from "./PageShell";
+import Reveal from "./Reveal";
 import ProductCard from "./ProductCard";
 import { useCopy } from "./useCopy";
 import { products, productsIn, PRODUCT_TYPES } from "@/data/products";
@@ -51,12 +52,12 @@ export default function GalleryIndex({ collection }) {
 
         <div dir={isRTL ? "rtl" : "ltr"} className="flex-1 min-w-0">
           {/* Page header: large title, introduction and what is in the gallery */}
-          <header className="grid md:grid-cols-12 gap-6 items-end px-5 sm:px-8 md:px-5 pt-12 md:pt-20 pb-8 md:pb-10">
+          <Reveal as="header" className="grid md:grid-cols-12 gap-6 items-end px-5 sm:px-8 md:px-5 pt-12 md:pt-20 pb-8 md:pb-10">
             <h1 className="md:col-span-7 text-[clamp(1.875rem,3.4vw,3rem)] leading-[1.05] tracking-[-0.01em]">{copy.title}</h1>
             <div className="md:col-span-5 md:pb-3">
               <p className="text-base leading-relaxed max-w-[40ch]">{copy.intro}</p>
             </div>
-          </header>
+          </Reveal>
 
           {/* Filter bar, then the size controls */}
           <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3 pt-4 pb-3 px-5 sm:px-8 md:px-5 border-y border-navy/15">
@@ -68,9 +69,7 @@ export default function GalleryIndex({ collection }) {
                     type="button"
                     aria-pressed={type === key}
                     onClick={() => setType(key)}
-                    className={`text-base cursor-pointer transition-colors underline-offset-[9px] decoration-1 focus-visible:outline-none focus-visible:underline ${
-                      type === key ? "underline" : "hover:underline"
-                    }`}
+                    className={`u-line text-base cursor-pointer focus-visible:outline-none ${type === key ? "is-on" : ""}`}
                   >
                     {label}
                   </button>

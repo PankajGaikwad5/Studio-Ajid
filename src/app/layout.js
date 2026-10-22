@@ -25,7 +25,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={hayyakumAllah.variable}>
+    // suppressHydrationWarning: the inline script adds "js" to <html> before React
+    // loads, which lets scroll reveals hide their content without a flash
+    <html lang="en" className={hayyakumAllah.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
       <body className="bg-[#09090b] text-[#edece6] antialiased selection:bg-[#d4af37] selection:text-black overflow-x-hidden font-sans">
         <LanguageProvider>
           <SmoothScroll>

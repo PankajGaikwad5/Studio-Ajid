@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import PageShell, { PAGE_GUTTER } from "./PageShell";
+import Reveal from "./Reveal";
 import { useCopy } from "./useCopy";
 import { findProject } from "@/data/projects";
 
@@ -21,7 +22,8 @@ export default function ProjectDetail({ category, slug }) {
         {/* Photos */}
         <div className="order-2 md:order-1 md:col-span-6 lg:col-span-5 space-y-6 md:space-y-20">
           {photos.map((src, i) => (
-            <button
+            <Reveal
+              as="button"
               key={src}
               type="button"
               onClick={() => setViewing(i)}
@@ -36,12 +38,12 @@ export default function ProjectDetail({ category, slug }) {
                 sizes="(min-width: 1024px) 40vw, (min-width: 768px) 48vw, 90vw"
                 className="object-cover transition-opacity duration-500 group-hover:opacity-90"
               />
-            </button>
+            </Reveal>
           ))}
         </div>
 
         {/* Text, held in view while the photos scroll */}
-        <div className="order-1 md:order-2 md:col-span-6 lg:col-span-4 lg:col-start-9">
+        <Reveal delay={150} className="order-1 md:order-2 md:col-span-6 lg:col-span-4 lg:col-start-9">
           <div className="md:sticky md:top-10">
             <h1 className="pb-5 border-b border-navy/15 text-xl md:text-2xl leading-tight">
               {pick(project.title)}, {pick(project.location)}
@@ -53,7 +55,7 @@ export default function ProjectDetail({ category, slug }) {
               ))}
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
 
       {viewing !== null && (
@@ -100,7 +102,7 @@ function Viewer({ photos, start, title, isRTL, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      className="fixed inset-0 z-70 bg-beige text-navy flex flex-col animate-[fadeUp_0.3s_ease-out]"
+      className="fixed inset-0 z-70 bg-beige text-navy flex flex-col soft-in"
       onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
       onTouchEnd={(e) => {
         if (touchX.current === null) return;

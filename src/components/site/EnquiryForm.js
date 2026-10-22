@@ -22,6 +22,8 @@ export default function EnquiryForm({ lead, subject, choice, context = [], messa
   const [values, setValues] = useState({ name: "", email: "", phone: "", choice: choice.options[0], message: "" });
   const [errors, setErrors] = useState({});
   const [choosing, setChoosing] = useState(false);
+  // Coming back from the choice, the form eases in again rather than snapping
+  const [returned, setReturned] = useState(false);
   const chooseRef = useRef(null);
   const formRef = useRef(null);
   const id = (name) => `${idPrefix}-${name}`;
@@ -59,7 +61,7 @@ export default function EnquiryForm({ lead, subject, choice, context = [], messa
 
   if (choosing) {
     return (
-      <div>
+      <div className="soft-in">
         <h2 ref={chooseRef} tabIndex={-1} className="text-[clamp(1.5rem,2.4vw,2.25rem)] leading-[1.1] focus:outline-none">
           {k.chooseTitle}
         </h2>
@@ -68,7 +70,14 @@ export default function EnquiryForm({ lead, subject, choice, context = [], messa
           <Choice href={whatsappHref} title={k.whatsapp} note={k.whatsappNote} external />
           <Choice href={emailHref} title={k.emailOption} note={k.emailNote} />
         </div>
-        <button type="button" onClick={() => setChoosing(false)} className="mt-8 text-sm underline underline-offset-[6px] decoration-navy/30 hover:decoration-navy cursor-pointer">
+        <button
+          type="button"
+          onClick={() => {
+            setChoosing(false);
+            setReturned(true);
+          }}
+          className="mt-8 text-sm underline underline-offset-[6px] decoration-navy/30 hover:decoration-navy transition-colors duration-300 cursor-pointer"
+        >
           {k.back}
         </button>
       </div>
@@ -76,7 +85,7 @@ export default function EnquiryForm({ lead, subject, choice, context = [], messa
   }
 
   return (
-    <form ref={formRef} onSubmit={submit} noValidate className="space-y-9">
+    <form ref={formRef} onSubmit={submit} noValidate className={`space-y-9 ${returned ? "soft-in" : ""}`}>
       {lead && <p className="text-base md:text-lg leading-relaxed max-w-[40ch]">{lead}</p>}
 
       {/* The choice as plain words; the chosen one is underlined */}
@@ -86,7 +95,7 @@ export default function EnquiryForm({ lead, subject, choice, context = [], messa
           {choice.options.map((option) => (
             <label key={option} className="cursor-pointer">
               <input type="radio" name="choice" value={option} checked={values.choice === option} onChange={set("choice")} className="peer sr-only" />
-              <span className="underline-offset-[9px] decoration-1 peer-checked:underline peer-focus-visible:underline hover:underline">{option}</span>
+              <span className="u-line peer-checked:[background-size:100%_1px] peer-focus-visible:[background-size:100%_1px]">{option}</span>
             </label>
           ))}
         </div>

@@ -13,6 +13,7 @@ import { Railed, DESTINATIONS } from "@/components/alts/shared";
 import V15Hero from "./V15Hero";
 import V15Nav from "./V15Nav";
 import V15Footer from "./V15Footer";
+import Reveal from "@/components/site/Reveal";
 import { PAD, RAIL, SECTION } from "./layout";
 
 // v15: v13's layout in the two brand colours at their exact shades, stone beige
@@ -36,15 +37,14 @@ const STRIPS = DESTINATIONS.filter((d) => d.id !== "hospitality").flatMap((d) =>
   return [d];
 });
 
-
 function Statement({ c }) {
   return (
     <Railed id="about" rail={RAIL} className="bg-beige text-navy">
       <div className={`${SECTION} py-24 md:py-32 grid md:grid-cols-12 gap-10 md:gap-6 items-end`}>
-        <p className="md:col-span-8 text-[clamp(1.625rem,2.6vw,2.5rem)] leading-[1.15] tracking-[-0.01em] max-w-[28ch]">
+        <Reveal as="p" className="md:col-span-8 text-[clamp(1.625rem,2.6vw,2.5rem)] leading-[1.15] tracking-[-0.01em] max-w-[28ch]">
           {c.home2.statement}
-        </p>
-        <p className="md:col-span-4 text-base leading-relaxed max-w-[38ch]">{c.home2.body}</p>
+        </Reveal>
+        <Reveal as="p" delay={180} className="md:col-span-4 text-base leading-relaxed max-w-[38ch]">{c.home2.body}</Reveal>
       </div>
     </Railed>
   );
@@ -105,13 +105,13 @@ function Strips({ c, t, lang, pick }) {
     <Railed rail={RAIL} className="bg-beige text-navy">
       <div className={`${PAD} pt-20 md:pt-28 pb-24`}>
         {/* Header: title, a line about the studio, and where it works */}
-        <div className="grid md:grid-cols-12 gap-6 items-end pb-8 mb-8 md:mb-10 border-b border-navy/15">
+        <Reveal className="grid md:grid-cols-12 gap-6 items-end pb-8 mb-8 md:mb-10 border-b border-navy/15">
           <h2 className="md:col-span-5 text-[clamp(1.75rem,3vw,2.75rem)] leading-[1.05] tracking-[-0.01em]">{c.home2.waysTitle}</h2>
           <p className="md:col-span-4 leading-relaxed max-w-[40ch]">{c.home2.body}</p>
           <p className="md:col-span-3 text-sm md:text-end">{c.footer.cities}</p>
-        </div>
+        </Reveal>
 
-        <div className="flex flex-col md:flex-row gap-2 md:h-[78vh] md:min-h-[600px]">
+        <Reveal delay={150} className="flex flex-col md:flex-row gap-2 md:h-[78vh] md:min-h-[600px]">
           {STRIPS.map((d, i) => {
             const isOpen = open === i;
             return (
@@ -165,7 +165,7 @@ function Strips({ c, t, lang, pick }) {
               </Link>
             );
           })}
-        </div>
+        </Reveal>
       </div>
     </Railed>
   );
@@ -177,7 +177,7 @@ function Studio({ c }) {
   return (
     <Railed rail={RAIL} className="bg-beige text-navy">
       <div className={`${SECTION} py-28 md:py-40`}>
-        <div className="mb-14 md:mb-20">
+        <Reveal className="mb-14 md:mb-20">
           <a
             href={STUDIO_MAP_URL}
             target="_blank"
@@ -192,13 +192,13 @@ function Studio({ c }) {
             />
           </a>
           <p className="mt-4 text-xs tracking-[0.14em] uppercase">{c.home2.studioNote}</p>
-        </div>
+        </Reveal>
         {/* Landscape, so the pair fills the width without towering */}
         <div className="grid grid-cols-2 gap-3 md:gap-6">
-          {STUDIO_IMAGES.map((src) => (
-            <div key={src} className="relative aspect-3/2 overflow-hidden">
+          {STUDIO_IMAGES.map((src, i) => (
+            <Reveal key={src} delay={i * 160} className="relative aspect-3/2 overflow-hidden">
               <Image src={src} alt="" fill sizes="(min-width: 768px) 42vw, 45vw" className="object-cover" />
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -213,22 +213,22 @@ function Pieces({ collection, title, note, linkLabel, cols, pick }) {
   const shown = productsIn(collection).slice(0, cols);
   return (
     <Railed rail={RAIL} className="bg-beige text-navy">
-      <div className={`${SECTION} pt-20 md:pt-28 pb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3`}>
+      <Reveal className={`${SECTION} pt-20 md:pt-28 pb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3`}>
         <div>
           <h2 className="text-2xl md:text-3xl">{title}</h2>
           <p className="mt-2 text-xs tracking-[0.14em] uppercase">{note}</p>
         </div>
-        <Link href={`/${collection}`} className="text-sm underline underline-offset-[6px] decoration-navy/30 hover:decoration-navy">{linkLabel}</Link>
-      </div>
+        <Link href={`/${collection}`} className="text-sm underline underline-offset-[6px] decoration-navy/30 hover:decoration-navy transition-colors duration-300">{linkLabel}</Link>
+      </Reveal>
       {/* Hairline grid: the gaps show the line colour, so no edge is ever doubled */}
-      <div className={`grid ${cols === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2 lg:grid-cols-4"} gap-px bg-navy/10 border-y border-navy/10`}>
+      <Reveal delay={150} className={`grid ${cols === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2 lg:grid-cols-4"} gap-px bg-navy/10 border-y border-navy/10`}>
         {shown.map((p) => (
           <Link key={p.slug} href={`/${collection}/${p.slug}`} className="group relative block aspect-square overflow-hidden bg-beige">
             <Image src={p.images[0]} alt={pick(p.name)} fill sizes={cols === 3 ? "(min-width: 640px) 30vw, 90vw" : "(min-width: 1024px) 20vw, 45vw"} className={`object-contain p-[16%] transition-transform duration-1000 ${EASE} group-hover:scale-[1.05]`} />
             <h3 className="absolute bottom-4 start-4 end-4 text-xs tracking-[0.08em] uppercase">{pick(p.name)}</h3>
           </Link>
         ))}
-      </div>
+      </Reveal>
     </Railed>
   );
 }

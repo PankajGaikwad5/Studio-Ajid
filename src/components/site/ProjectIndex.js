@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PageShell, { PAGE_GUTTER } from "./PageShell";
+import Reveal from "./Reveal";
 import { useCopy } from "./useCopy";
 import { useLanguage } from "@/context/LanguageContext";
 import { projects, projectsIn } from "@/data/projects";
@@ -30,12 +31,12 @@ export default function ProjectIndex({ category }) {
   return (
     <PageShell active="interiors">
       <div className={`${PAGE_GUTTER} pt-12 md:pt-20 pb-24 md:pb-32`}>
-        <div className={`flex flex-wrap items-end justify-between gap-4 pb-6 border-b border-navy/15 ${isInteriors ? "" : "mb-10 md:mb-14"}`}>
+        <Reveal className={`flex flex-wrap items-end justify-between gap-4 pb-6 border-b border-navy/15 ${isInteriors ? "" : "mb-10 md:mb-14"}`}>
           <h1 className="text-[clamp(1.875rem,3.4vw,3rem)] leading-[1.05] tracking-[-0.01em]">{title}</h1>
-        </div>
+        </Reveal>
 
         {isInteriors && (
-          <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 pt-4 pb-3 mb-10 md:mb-14 border-b border-navy/15">
+          <Reveal delay={120} className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 pt-4 pb-3 mb-10 md:mb-14 border-b border-navy/15">
             <div role="group" aria-label={title} className="flex flex-wrap gap-x-5 gap-y-1">
               {filters.map(([key, label]) => (
                 <button
@@ -43,20 +44,19 @@ export default function ProjectIndex({ category }) {
                   type="button"
                   aria-pressed={filter === key}
                   onClick={() => setFilter(key)}
-                  className={`text-base cursor-pointer underline-offset-[9px] decoration-1 focus-visible:outline-none focus-visible:underline ${
-                    filter === key ? "underline" : "hover:underline"
-                  }`}
+                  className={`u-line text-base cursor-pointer focus-visible:outline-none ${filter === key ? "is-on" : ""}`}
                 >
                   {label}
                 </button>
               ))}
             </div>
-          </div>
+          </Reveal>
         )}
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-9 gap-y-10">
+        {/* Keyed by the filter, so a new choice brings the cards in afresh */}
+        <div key={filter} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-9 gap-y-10">
           {list.map((p, i) => (
-            <Link key={p.slug} href={`/${p.category}/${p.slug}`} className="group block focus-visible:outline-none">
+            <Reveal as={Link} key={p.slug} delay={(i % 3) * 120} href={`/${p.category}/${p.slug}`} className="group block focus-visible:outline-none">
               <div className="relative aspect-7/5 overflow-hidden group-focus-visible:ring-1 group-focus-visible:ring-navy">
                 <Image
                   src={p.cover}
@@ -70,7 +70,7 @@ export default function ProjectIndex({ category }) {
               <p className="mt-3 text-xs tracking-[0.08em] uppercase">
                 {pick(p.title)}, {pick(p.location)}
               </p>
-            </Link>
+            </Reveal>
           ))}
         </div>
       </div>
