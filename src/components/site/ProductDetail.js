@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Heart, Share, X } from "lucide-react";
 import PageShell from "./PageShell";
+import EnquiryForm from "./EnquiryForm";
 import { useCopy } from "./useCopy";
-import { useLanguage } from "@/context/LanguageContext";
 import { findProduct, FINISHES } from "@/data/products";
 
 // Product page after the reference: breadcrumb, two views side by side with
@@ -32,7 +32,6 @@ function Breadcrumb({ c, pick, product }) {
 
 export default function ProductDetail({ slug }) {
   const { c, pick, lang, isRTL } = useCopy();
-  const { t } = useLanguage();
   const w = WORDS[lang];
   const product = findProduct(slug);
   // Cut-outs first, then the original photograph showing the piece in a room
@@ -45,6 +44,7 @@ export default function ProductDetail({ slug }) {
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
   const detailsRef = useRef(null);
+  const [enquiring, setEnquiring] = useState(false);
 
   // Two views at a time on wider screens, one on phones
   useEffect(() => {
@@ -175,7 +175,13 @@ export default function ProductDetail({ slug }) {
 
           {/* Description and specifications */}
           <div className="grid md:grid-cols-2 gap-10 md:gap-8 px-4 md:px-5 pt-10 md:pt-14 pb-16 md:pb-24">
-            <p className="text-xl md:text-[22px] leading-snug max-w-[44ch]">{pick(product.description)}</p>
+            <div>
+              <p className="text-xl md:text-[22px] leading-snug max-w-[44ch]">{pick(product.description)}</p>
+              <button type="button" onClick={() => setEnquiring(true)} className="group mt-10 inline-flex items-center gap-3 text-base cursor-pointer">
+                <span className="h-px w-8 bg-current transition-[width] duration-500 group-hover:w-12" />
+                {c.buy.button}
+              </button>
+            </div>
             <dl className="border-t border-navy/15 text-sm self-start">
               {specs.map(([label, value]) => (
                 <div key={label} className="grid grid-cols-2 gap-6 py-3 border-b border-navy/15">
@@ -199,12 +205,9 @@ export default function ProductDetail({ slug }) {
               <div className="grid grid-cols-2 gap-6 py-3 border-b border-navy/15">
                 <dt>{w.enquireLabel}</dt>
                 <dd>
-                  <a
-                    href={`mailto:${t.contact.emailAddress}?subject=${encodeURIComponent(pick(product.name))}`}
-                    className="underline underline-offset-4 decoration-navy/40 hover:decoration-navy"
-                  >
-                    {c.enquire}
-                  </a>
+                  <button type="button" onClick={() => setEnquiring(true)} className="underline underline-offset-4 decoration-navy/40 hover:decoration-navy cursor-pointer">
+                    {c.buy.button}
+                  </button>
                 </dd>
               </div>
             </dl>
@@ -216,6 +219,73 @@ export default function ProductDetail({ slug }) {
           </div>
         </div>
       </div>
+
+      {enquiring && <BuyPanel product={product} onClose={() => setEnquiring(false)} />}
     </PageShell>
+  );
+}
+
+// Buy or enquire: a full-screen beige panel with the piece beside the enquiry
+// form, which works like the contact page (Send offers WhatsApp or email) and
+// writes the piece and its link into the message
+function BuyPanel({ product, onClose }) {
+  const { c, pick, isRTL } = useCopy();
+  const closeRef = useRef(null);
+  const b = c.buy;
+
+  useEffect(() => {
+    const opener = document.activeElement;
+    closeRef.current?.focus();
+    document.documentElement.style.overflow = "hidden";
+    const onKey = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.documentElement.style.overflow = "";
+      opener?.focus?.();
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="buy-title"
+      dir={isRTL ? "rtl" : "ltr"}
+      className="fixed inset-0 z-70 bg-beige text-navy overflow-y-auto overscroll-contain animate-[fadeUp_0.3s_ease-out]"
+      data-lenis-prevent
+    >
+      <div className="flex justify-end px-5 md:px-10 lg:px-12 pt-5 md:pt-8">
+        <button ref={closeRef} type="button" onClick={onClose} className="inline-flex items-center gap-2 text-sm cursor-pointer underline-offset-4 decoration-1 hover:underline">
+          <X className="w-4 h-4" strokeWidth={1.5} />
+          {b.close}
+        </button>
+      </div>
+
+      <div className="px-5 sm:px-8 md:px-10 lg:px-12 pt-8 md:pt-12 pb-20 grid md:grid-cols-12 gap-12 md:gap-6">
+        {/* The piece */}
+        <div className="md:col-span-4">
+          <div className="relative aspect-square border border-navy/10">
+            <Image src={product.images[0]} alt={pick(product.name)} fill sizes="(min-width: 768px) 30vw, 90vw" className="object-contain p-[12%]" />
+          </div>
+          <p className="mt-4 text-sm uppercase tracking-[0.04em]">{pick(product.name)}</p>
+          <p className="mt-1 text-sm">{pick(product.material)}</p>
+        </div>
+
+        <div className="md:col-span-7 md:col-start-6">
+          <h2 id="buy-title" className="pb-6 mb-10 border-b border-navy/15 text-[clamp(1.875rem,3.4vw,3rem)] leading-[1.05] tracking-[-0.01em]">
+            {b.title}
+          </h2>
+          <EnquiryForm
+            lead={b.lead}
+            subject={b.subject}
+            choice={{ label: b.intentLabel, options: b.intents }}
+            context={[`${b.piece}: ${pick(product.name)}`, typeof window === "undefined" ? "" : window.location.href]}
+            messageRequired={false}
+            idPrefix="buy"
+          />
+        </div>
+      </div>
+    </div>
   );
 }
