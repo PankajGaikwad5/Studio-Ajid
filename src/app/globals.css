@@ -158,8 +158,31 @@ html.lenis, html.lenis body {
   animation: softIn 0.8s var(--ease-soft) both;
 }
 
+/* Page changes (React <ViewTransition> in PageShell and the home page): the
+   page leaves quickly, the next rises in gently once it has gone. The rest of
+   the screen, the fixed menu included, does not animate. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+::view-transition-old(.page-out) {
+  animation: 280ms ease-out both pageOut;
+}
+::view-transition-new(.page-in) {
+  animation: 800ms var(--ease-soft) 160ms both pageIn;
+}
+@keyframes pageOut {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .js [data-reveal] { opacity: 1; transform: none; transition: none; }
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
   .soft-in { animation: none; }
   .u-line { transition: none; }
 }

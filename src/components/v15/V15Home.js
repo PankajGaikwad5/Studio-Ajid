@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ViewTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
@@ -239,15 +239,20 @@ export default function V15Home() {
   return (
     <div className="bg-beige text-navy selection:bg-navy selection:text-beige">
       <V15Nav />
-      <main>
-        <V15Hero homeHref={HOME} />
-        <Strips c={c} t={t} lang={lang} pick={pick} />
-        <Statement c={c} />
-        <Studio c={c} />
-        <Pieces collection="objects" title={c.home2.objectsTitle} note={t.navGrid.items.objects} linkLabel={c.home2.objectsLink} cols={3} pick={pick} />
-        <Pieces collection="gallery" title={c.gallery.title} note={t.navGrid.items.collection} linkLabel={c.home2.galleryLink} cols={4} pick={pick} />
-      </main>
-      <V15Footer />
+      {/* Page changes crossfade, as on the inner pages; the menu stays put */}
+      <ViewTransition enter="page-in" exit="page-out" default="none">
+        <div>
+          <main>
+            <V15Hero homeHref={HOME} />
+            <Strips c={c} t={t} lang={lang} pick={pick} />
+            <Statement c={c} />
+            <Studio c={c} />
+            <Pieces collection="objects" title={c.home2.objectsTitle} note={t.navGrid.items.objects} linkLabel={c.home2.objectsLink} cols={3} pick={pick} />
+            <Pieces collection="gallery" title={c.gallery.title} note={t.navGrid.items.collection} linkLabel={c.home2.galleryLink} cols={4} pick={pick} />
+          </main>
+          <V15Footer />
+        </div>
+      </ViewTransition>
     </div>
   );
 }

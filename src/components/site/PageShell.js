@@ -1,5 +1,6 @@
 "use client";
 
+import { ViewTransition } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
@@ -18,22 +19,27 @@ export const GUTTER = "pl-44 sm:pl-52 md:pl-64 lg:pl-76 pr-5 sm:pr-8 md:pr-10 lg
 // The inner pages in the home page's (v15) design: stone beige and deep navy,
 // v15's menu docked in its column from the start (three lines on phones), the
 // AJID mark top left linking home, and v15's footer. `active` marks the menu
-// item for the page.
+// item for the page. Page changes crossfade (styles in globals.css): the page
+// fades out and the next rises in, while the fixed menu stays where it is.
 export default function PageShell({ children, active }) {
   const { isRTL } = useCopy();
 
   return (
     <div className="min-h-screen bg-beige text-navy selection:bg-navy selection:text-beige">
       <V15Nav alwaysDocked active={active} />
-      <header dir="ltr" className="px-5 sm:px-8 md:px-10 lg:px-12 pt-5 md:pt-8">
-        <Link href="/" aria-label="AJID" className="inline-block">
-          <svg viewBox={LATIN_VIEWBOX} aria-hidden="true" className="block h-6 md:h-8 w-auto fill-navy">
-            <LatinMarkPaths />
-          </svg>
-        </Link>
-      </header>
-      <main dir={isRTL ? "rtl" : "ltr"}>{children}</main>
-      <V15Footer />
+      <ViewTransition enter="page-in" exit="page-out" default="none">
+        <div>
+          <header dir="ltr" className="px-5 sm:px-8 md:px-10 lg:px-12 pt-5 md:pt-8">
+            <Link href="/" aria-label="AJID" className="inline-block">
+              <svg viewBox={LATIN_VIEWBOX} aria-hidden="true" className="block h-6 md:h-8 w-auto fill-navy">
+                <LatinMarkPaths />
+              </svg>
+            </Link>
+          </header>
+          <main dir={isRTL ? "rtl" : "ltr"}>{children}</main>
+          <V15Footer />
+        </div>
+      </ViewTransition>
     </div>
   );
 }
