@@ -108,6 +108,7 @@ export const pageCopy = {
       talk: "Let's talk",
     },
     home2: {
+      intro: "Studio Ajid brings a personal perspective to interiors, furniture and objects, informed by Qatari heritage and an instinct for colour and material. An attention to proportion and craftsmanship runs through every scale of the work, from the composition of a room to the finest detail of a porcelain piece.",
       statement: "We build for heat, light and the long evening, for families and for their guests.",
       body: "Studio Ajid is an architecture and interiors practice working across Riyadh, Dubai and London. We design homes, hotels and restaurants, and the furniture that goes in them.",
       waysTitle: "Explore the work",
@@ -120,6 +121,7 @@ export const pageCopy = {
       objectsLink: "See every object",
       studioTitle: "The Studio",
       studioNote: "By appointment only",
+      studioPlace: "Doha Design District, Msheireb",
       talkLead: "Have a project in mind?",
     },
   },
@@ -230,6 +232,7 @@ export const pageCopy = {
       talk: "تواصل معنا",
     },
     home2: {
+      intro: "يقدّم استوديو عجيد رؤية شخصية للتصميم الداخلي والأثاث والقطع، مستلهمة من التراث القطري وحسٍّ فطري باللون والمادة. ويمتد الاهتمام بالتناسب والحرفية عبر كل مستويات العمل، من تكوين الغرفة إلى أدق تفاصيل قطعة من البورسلين.",
       statement: "نبني للحرارة والضوء والمساء الطويل، للعائلات ولضيوفها.",
       body: "استوديو عجيد ممارسة للعمارة والتصميم الداخلي تعمل بين الرياض ودبي ولندن. نصمم البيوت والفنادق والمطاعم، والأثاث الذي يسكنها.",
       waysTitle: "استكشف الأعمال",
@@ -242,6 +245,7 @@ export const pageCopy = {
       objectsLink: "شاهد كل القطع",
       studioTitle: "الاستوديو",
       studioNote: "بموعد مسبق فقط",
+      studioPlace: "حي الدوحة للتصميم، مشيرب",
       talkLead: "لديك مشروع في ذهنك؟",
     },
   },

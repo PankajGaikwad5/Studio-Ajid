@@ -153,6 +153,21 @@ export const products = [
       en: "Three thrown vessels finished in a glaze mixed with desert sand, so no two surfaces are the same.",
       ar: "ثلاث أوانٍ مصنوعة على الدولاب بطلاء ممزوج برمل الصحراء، فلا يتشابه سطحان.",
     },
+    // Objects are the studio's own designs: each has the story behind it and a
+    // film of its making (placeholder copy and Mixkit stock until the studio's own)
+    story: {
+      en: [
+        "Raml began with a handful of sand carried back from the dunes south of Doha, and the question of whether the desert itself could become a glaze.",
+        "Each vessel is thrown by hand, then dipped in a glaze mixed with that sand. In the kiln the grains melt unevenly, leaving a surface that is never quite the same twice, like the dunes after wind.",
+        "The three heights are set to stand together on a low table or a niche, catching light along their shoulders.",
+      ],
+      ar: [
+        "بدأت «رمل» بحفنة من الرمل حُملت من الكثبان جنوب الدوحة، وبسؤال: هل يمكن للصحراء نفسها أن تصبح طلاءً؟",
+        "تُشكَّل كل آنية يدوياً على الدولاب، ثم تُغمس في طلاء ممزوج بذلك الرمل. وفي الفرن تذوب الحبيبات بتفاوت، فتترك سطحاً لا يتكرر أبداً، كالكثبان بعد الريح.",
+        "اختيرت الارتفاعات الثلاثة لتقف معاً على طاولة منخفضة أو في كوّة، يلتقط الضوء أكتافها.",
+      ],
+    },
+    making: { video: "/videos/making/raml.mp4", poster: "/videos/making/raml.jpg" },
     images: [cutout("raml-vessels-1"), cutout("raml-vessels-2")],
     // Cut out from Unsplash photos
     source: ["photo-1565193566173-7a0ee3dbe261", "photo-1578500494198-246f612d3b3d"],
@@ -170,6 +185,19 @@ export const products = [
       en: "A wide serving bowl in raw terracotta, made with potters in Al-Ahsa using local clay.",
       ar: "وعاء تقديم واسع من الفخار الخام، صُنع مع خزّافين في الأحساء من الطين المحلي.",
     },
+    story: {
+      en: [
+        "Fakhar is named for the oldest material in the region's kitchens: earth, shaped and fired.",
+        "The bowl is made with a family of potters in Al-Ahsa who still dig their clay from the oasis. It is thrown wide and shallow for sharing, and left unglazed so the warmth of the terracotta stays visible.",
+        "Over years of use the surface darkens and softens, keeping a record of every meal served from it.",
+      ],
+      ar: [
+        "سُمّي «فخار» بأقدم مادة في مطابخ المنطقة: طين يُشكَّل ويُحرق.",
+        "يُصنع الوعاء مع عائلة من الخزّافين في الأحساء ما زالوا يستخرجون طينهم من الواحة. يُشكَّل واسعاً وقليل العمق للمشاركة، ويُترك دون طلاء ليبقى دفء الفخار ظاهراً.",
+        "ومع سنوات الاستعمال يغمق سطحه ويلين، حافظاً أثر كل وجبة قُدّمت فيه.",
+      ],
+    },
+    making: { video: "/videos/making/fakhar.mp4", poster: "/videos/making/fakhar.jpg" },
     images: [cutout("fakhar-bowl-1"), cutout("fakhar-bowl-2")],
     // Cut out from Unsplash photos
     source: ["photo-1610701596007-11502861dcfa", "photo-1616627547584-bf28cee262db"],
@@ -187,6 +215,19 @@ export const products = [
       en: "A small turned stool that doubles as a side table, inspired by the low wooden seats of desert camps.",
       ar: "مقعد صغير مخروط يصلح طاولة جانبية، مستوحى من المقاعد الخشبية المنخفضة في مخيمات الصحراء.",
     },
+    story: {
+      en: [
+        "Sahra takes its shape from the low wooden seats found around the fire in desert camps, light enough to carry and steady on uneven ground.",
+        "It is turned from a single block of oak, then carved by hand so the grain runs unbroken from seat to foot. A final coat of oil brings the wood to a soft, low sheen.",
+        "Used as a stool or as a small table beside a sofa, it is meant to move around a home the way it once moved around a camp.",
+      ],
+      ar: [
+        "يستمد «صحراء» شكله من المقاعد الخشبية المنخفضة حول النار في مخيمات الصحراء، خفيف يسهل حمله وثابت على الأرض غير المستوية.",
+        "يُخرط من كتلة واحدة من البلوط، ثم يُنحت يدوياً لتمتد العروق دون انقطاع من المقعد إلى القاعدة. وتمنحه طبقة أخيرة من الزيت لمعة هادئة.",
+        "يُستعمل مقعداً أو طاولة صغيرة بجانب الأريكة، ليتنقل في البيت كما كان يتنقل في المخيم.",
+      ],
+    },
+    making: { video: "/videos/making/sahra.mp4", poster: "/videos/making/sahra.jpg" },
     images: [cutout("sahra-stool-1"), cutout("sahra-stool-2")],
     // Cut out from Unsplash photos
     source: ["photo-1519947486511-46149fa0a254", "photo-1538688525198-9b88f6f53126"],

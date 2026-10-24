@@ -11,3 +11,7 @@ export const SECTION = `${PAD} border-t border-navy/15`;
 // Inner pages: clears the docked menu column from md up (the rail is w-56 at
 // md and w-66 at lg); phones use the full width
 export const PAGE_GUTTER = "px-5 sm:px-8 md:pl-64 lg:pl-76 md:pr-10 lg:pr-12";
+
+// Brand pattern no. 9, tiled across and down. The file is drawn in the page beige,
+// so it is a mask filled with the faintest navy, a soft shadow of the ground.
+export const PATTERN_FILL = "absolute inset-0 -z-10 pointer-events-none bg-navy/[0.07] [mask-image:url(/patterns/9-band.png)] [mask-repeat:repeat] [mask-position:left_top] [mask-size:auto_6rem] md:[mask-size:auto_9rem]";

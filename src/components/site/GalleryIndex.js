@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { Minus, Plus } from "lucide-react";
 import PageShell from "./PageShell";
 import Reveal from "./Reveal";
-import ProductCard from "./ProductCard";
+import ProductCard, { GalleryCard } from "./ProductCard";
 import { useCopy } from "./useCopy";
 import { products, productsIn, PRODUCT_TYPES } from "@/data/products";
 
@@ -25,8 +25,12 @@ export default function GalleryIndex({ collection }) {
   const [type, setType] = useState("all");
   const [cols, setCols] = useState(3);
   const gridRef = useRef(null);
+  // Per the client, the gallery and objects are each one curated selection: no
+  // categories to filter by and no finishes, only each piece with its dimensions
+  const curated = collection === "gallery" || collection === "objects";
+  const Card = curated ? GalleryCard : ProductCard;
 
-  const shown = type === "all" ? pieces : pieces.filter((p) => p.type === type);
+  const shown = curated || type === "all" ? pieces : pieces.filter((p) => p.type === type);
 
   // Each filter or size change: the tiles fade up, so the change is visible
   useEffect(() => {
@@ -60,8 +64,8 @@ export default function GalleryIndex({ collection }) {
           </Reveal>
 
           {/* Filter bar, then the size controls */}
-          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3 pt-4 pb-3 px-5 sm:px-8 md:px-5 border-y border-navy/15">
-            <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+          <div className={`flex flex-wrap items-end gap-x-8 gap-y-3 pt-4 pb-3 px-5 sm:px-8 md:px-5 border-y border-navy/15 ${curated ? "justify-end" : "justify-between"}`}>
+            {!curated && <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
               <div role="group" aria-label={copy.title} className="flex flex-wrap gap-x-5 gap-y-1">
                 {filters.map(([key, label]) => (
                   <button
@@ -75,7 +79,7 @@ export default function GalleryIndex({ collection }) {
                   </button>
                 ))}
               </div>
-            </div>
+            </div>}
             <div className="flex items-center gap-4">
               <button
                 type="button"
@@ -101,7 +105,7 @@ export default function GalleryIndex({ collection }) {
           {/* Edge-to-edge tiles; the 1px gaps over a navy tint draw the hairlines */}
           <div ref={gridRef} className={`grid ${DENSITY[cols]} gap-px bg-navy/12 border-b border-navy/12`}>
             {shown.map((p) => (
-              <ProductCard key={p.slug} product={p} sizes={`(min-width: 1024px) ${Math.round(85 / cols)}vw, 50vw`} />
+              <Card key={p.slug} product={p} sizes={`(min-width: 1024px) ${Math.round(85 / cols)}vw, 50vw`} />
             ))}
           </div>
         </div>

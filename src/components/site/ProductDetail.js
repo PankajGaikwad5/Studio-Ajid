@@ -8,23 +8,21 @@ import PageShell from "./PageShell";
 import EnquiryForm from "./EnquiryForm";
 import Reveal from "./Reveal";
 import { useCopy } from "./useCopy";
-import { findProduct, FINISHES } from "@/data/products";
+import { findProduct } from "@/data/products";
 
-// Product page after the reference: breadcrumb, two views side by side with
-// arrows, a title bar with save/share/close, then the description beside a
-// ruled spec table, and the breadcrumb again at the end. In the home page's
-// beige and navy; on wider screens the page clears the docked menu column.
+// Product page: breadcrumb, two views side by side with arrows, a title bar
+// with save/share/close, then the dimensions beside a short description and a
+// few details. The studio's own objects go on to the story behind the piece
+// and a film of its making. On wider screens the page clears the menu column.
 const WORDS = {
-  en: { type: "Type", save: "Save", saved: "Saved", share: "Share", copied: "Link copied", close: "Back to gallery", prev: "Previous view", next: "Next view", down: "Details", enquireLabel: "Enquiries" },
-  ar: { type: "النوع", save: "حفظ", saved: "محفوظ", share: "مشاركة", copied: "نُسخ الرابط", close: "العودة إلى المعرض", prev: "العرض السابق", next: "العرض التالي", down: "التفاصيل", enquireLabel: "الاستفسارات" },
+  en: { story: "The story behind", making: "In the making", save: "Save", saved: "Saved", share: "Share", copied: "Link copied", close: "Back to gallery", prev: "Previous view", next: "Next view", down: "Details", enquireLabel: "Enquiries", interested: "Interested in this piece?" },
+  ar: { story: "القصة وراء القطعة", making: "مراحل الصنع", save: "حفظ", saved: "محفوظ", share: "مشاركة", copied: "نُسخ الرابط", close: "العودة إلى المعرض", prev: "العرض السابق", next: "العرض التالي", down: "التفاصيل", enquireLabel: "الاستفسارات", interested: "مهتم بهذه القطعة؟" },
 };
 
 function Breadcrumb({ c, pick, product }) {
   return (
     <nav aria-label="Breadcrumb" className="text-sm">
       <Link href={`/${product.collection}`} className="hover:underline underline-offset-4">{c[product.collection].title}</Link>
-      <span className="mx-1.5">&gt;</span>
-      <span>{c.gallery.types[product.type]}</span>
       <span className="mx-1.5">&gt;</span>
       <span>{pick(product.name)}</span>
     </nav>
@@ -72,13 +70,6 @@ export default function ProductDetail({ slug }) {
       // Sharing was cancelled; nothing to do
     }
   };
-
-  const specs = [
-    [w.type, c.gallery.types[product.type]],
-    [c.facts.material, pick(product.material)],
-    [c.facts.dimensions, product.dimensions],
-    [c.facts.edition, pick(product.edition)],
-  ];
 
   return (
     <PageShell active={product.collection}>
@@ -174,45 +165,34 @@ export default function ProductDetail({ slug }) {
             </div>
           </div>
 
-          {/* Description and specifications */}
-          <Reveal className="grid md:grid-cols-2 gap-10 md:gap-8 px-5 pt-10 md:pt-14 pb-16 md:pb-24">
-            <div>
-              <p className="text-xl md:text-[22px] leading-snug max-w-[44ch]">{pick(product.description)}</p>
-              <button type="button" onClick={() => setEnquiring(true)} className="group mt-10 inline-flex items-center gap-3 text-base cursor-pointer">
-                <span className="h-px w-8 bg-current transition-[width] duration-500 group-hover:w-12" />
-                {c.buy.button}
-              </button>
+          {/* The description with a quiet way to enquire, beside a few ruled
+              details. No type, no finishes. */}
+          <Reveal className="grid md:grid-cols-12 gap-10 md:gap-8 px-5 pt-10 md:pt-14 pb-16 md:pb-24">
+            <div className="md:col-span-6">
+              <p className="text-lg md:text-xl leading-relaxed max-w-[40ch]">{pick(product.description)}</p>
+              <p className="mt-8 text-sm">
+                {w.interested}{" "}
+                <button type="button" onClick={() => setEnquiring(true)} className="underline underline-offset-4 decoration-navy/40 hover:decoration-navy transition-colors duration-300 cursor-pointer">
+                  {c.buy.button}
+                </button>
+              </p>
             </div>
-            <dl className="border-t border-navy/15 text-sm self-start">
-              {specs.map(([label, value]) => (
-                <div key={label} className="grid grid-cols-2 gap-6 py-3 border-b border-navy/15">
+            <dl className="md:col-span-5 md:col-start-8 self-start border-t border-navy/15 text-sm">
+              {[
+                [c.facts.dimensions, product.dimensions],
+                [c.facts.material, pick(product.material)],
+                [c.facts.edition, pick(product.edition)],
+              ].map(([label, value]) => (
+                <div key={label} className="grid grid-cols-[8rem_1fr] gap-4 py-3 border-b border-navy/15">
                   <dt>{label}</dt>
-                  <dd>{value}</dd>
+                  <dd className="tabular-nums">{value}</dd>
                 </div>
               ))}
-              <div className="grid grid-cols-2 gap-6 py-3 border-b border-navy/15">
-                <dt>{c.facts.finish}</dt>
-                <dd>
-                  <ul className="space-y-1.5">
-                    {product.finishes.map((f) => (
-                      <li key={f} className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full ring-1 ring-navy/25" style={{ backgroundColor: FINISHES[f].hex }} />
-                        {pick(FINISHES[f].name)}
-                      </li>
-                    ))}
-                  </ul>
-                </dd>
-              </div>
-              <div className="grid grid-cols-2 gap-6 py-3 border-b border-navy/15">
-                <dt>{w.enquireLabel}</dt>
-                <dd>
-                  <button type="button" onClick={() => setEnquiring(true)} className="underline underline-offset-4 decoration-navy/40 hover:decoration-navy cursor-pointer">
-                    {c.buy.button}
-                  </button>
-                </dd>
-              </div>
             </dl>
           </Reveal>
+
+          {/* The studio's own pieces: the story behind it, then its making */}
+          {product.story && <Story product={product} w={w} pick={pick} />}
 
           {/* Breadcrumb band */}
           <div className="border-t border-navy/15 px-5 md:px-5 py-5">
@@ -223,6 +203,59 @@ export default function ProductDetail({ slug }) {
 
       {enquiring && <BuyPanel product={product} onClose={() => setEnquiring(false)} />}
     </PageShell>
+  );
+}
+
+// The story behind one of the studio's pieces, set as a spread: the story on
+// one side, left-aligned and sitting at the foot of a tall making film on the
+// other. Phones read the story first, then the film. The film is muted and
+// loops (a still frame instead for anyone who prefers reduced motion).
+function Story({ product, w, pick }) {
+  const videoRef = useRef(null);
+  const { video, poster } = product.making ?? {};
+
+  // Play only while on screen
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? el.play().catch(() => {}) : el.pause()), { threshold: 0.25 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <section className="border-t border-navy/15 grid md:grid-cols-12 gap-12 md:gap-8 px-5 py-16 md:py-24 md:items-end">
+      <Reveal className="md:col-span-5">
+        <p className="flex items-center gap-3 text-sm">
+          <span aria-hidden="true" className="h-px w-8 bg-current" />
+          {w.story}
+        </p>
+        <h2 className="mt-4 text-2xl md:text-[1.75rem] leading-tight">{pick(product.name)}</h2>
+        <div className="mt-6 md:mt-8 max-w-[44ch] space-y-4 text-base leading-relaxed">
+          {pick(product.story).map((para) => (
+            <p key={para}>{para}</p>
+          ))}
+        </div>
+      </Reveal>
+      {video && (
+        <Reveal as="figure" delay={150} className="md:col-span-6 md:col-start-7">
+          <div className="relative aspect-4/5 overflow-hidden bg-navy">
+            <video
+              ref={videoRef}
+              src={video}
+              poster={poster}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </div>
+          <figcaption className="mt-3 text-sm">{w.making}</figcaption>
+        </Reveal>
+      )}
+    </section>
   );
 }
 

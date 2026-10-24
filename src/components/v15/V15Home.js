@@ -14,7 +14,7 @@ import V15Hero from "./V15Hero";
 import V15Nav from "./V15Nav";
 import V15Footer from "./V15Footer";
 import Reveal from "@/components/site/Reveal";
-import { PAD, RAIL, SECTION } from "./layout";
+import { PAD, RAIL, SECTION, PATTERN_FILL } from "./layout";
 
 // v15: v13's layout in the two brand colours at their exact shades, stone beige
 // grounds and deep navy type (hairlines are the only tints). Residential and
@@ -22,6 +22,16 @@ import { PAD, RAIL, SECTION } from "./layout";
 // and the Gallery (a broader selection) are kept apart; The Studio replaces
 // recent projects, which already appear elsewhere.
 const HOME = "/";
+
+// The Objects and Gallery rows are hidden for now, since the strips already
+// lead there and the client wants nothing repeated. Set to true to show them.
+const SHOW_PIECES = false;
+
+// The brand pattern tiled behind the whole page below the hero. Sections drop
+// their own beige so it runs on without seams. Set to false to undo.
+const PAGE_PATTERN = false;
+const GROUND = PAGE_PATTERN ? "" : "bg-beige";
+const HOME_RAIL = PAGE_PATTERN ? "max-md:hidden" : RAIL;
 const EASE = "ease-[cubic-bezier(0.22,1,0.36,1)]";
 
 // Placeholders until the studio's own photographs arrive
@@ -37,14 +47,20 @@ const STRIPS = DESTINATIONS.filter((d) => d.id !== "hospitality").flatMap((d) =>
   return [d];
 });
 
-function Statement({ c }) {
+// The first thing after the hero, per the client: the monogram, then the
+// studio's introduction beneath it. The logo file is beige, so it is used as
+// a mask and filled with the exact navy.
+function Intro({ c }) {
   return (
-    <Railed id="about" rail={RAIL} className="bg-beige text-navy">
-      <div className={`${SECTION} py-24 md:py-32 grid md:grid-cols-12 gap-10 md:gap-6 items-end`}>
-        <Reveal as="p" className="md:col-span-8 text-[clamp(1.625rem,2.6vw,2.5rem)] leading-[1.15] tracking-[-0.01em] max-w-[28ch]">
-          {c.home2.statement}
+    <Railed id="about" rail={HOME_RAIL} className={`${GROUND} text-navy`}>
+      <div className={`${PAD} py-16 md:py-24`}>
+        <Reveal
+          aria-hidden="true"
+          className="w-10 md:w-12 aspect-[700/645] bg-navy [mask:url(/logos/monogram.png)_center/contain_no-repeat]"
+        />
+        <Reveal as="p" delay={180} className="mt-5 md:mt-6 text-base md:text-lg leading-relaxed max-w-[52ch]">
+          {c.home2.intro}
         </Reveal>
-        <Reveal as="p" delay={180} className="md:col-span-4 text-base leading-relaxed max-w-[38ch]">{c.home2.body}</Reveal>
       </div>
     </Railed>
   );
@@ -102,16 +118,9 @@ function Strips({ c, t, lang, pick }) {
   const enter = { en: "Enter", ar: "ادخل" }[lang];
 
   return (
-    <Railed rail={RAIL} className="bg-beige text-navy">
-      <div className={`${PAD} pt-20 md:pt-28 pb-24`}>
-        {/* Header: title, a line about the studio, and where it works */}
-        <Reveal className="grid md:grid-cols-12 gap-6 items-end pb-8 mb-8 md:mb-10 border-b border-navy/15">
-          <h2 className="md:col-span-5 text-[clamp(1.75rem,3vw,2.75rem)] leading-[1.05] tracking-[-0.01em]">{c.home2.waysTitle}</h2>
-          <p className="md:col-span-4 leading-relaxed max-w-[40ch]">{c.home2.body}</p>
-          <p className="md:col-span-3 text-sm md:text-end">{c.footer.cities}</p>
-        </Reveal>
-
-        <Reveal delay={150} className="flex flex-col md:flex-row gap-2 md:h-[78vh] md:min-h-[600px]">
+    <Railed rail={HOME_RAIL} className={`${GROUND} text-navy`}>
+      <div className={`${PAD} pb-24`}>
+        <Reveal className="flex flex-col md:flex-row gap-2 md:h-[78vh] md:min-h-[600px]">
           {STRIPS.map((d, i) => {
             const isOpen = open === i;
             return (
@@ -171,33 +180,36 @@ function Strips({ c, t, lang, pick }) {
   );
 }
 
-// The studio itself: the title opens its location on Google Maps, a quiet line
-// beneath it, and two photographs of equal size. Nothing else.
+// The studio itself, laid out like a magazine page: a short title (opening its
+// location on Google Maps) with a quiet line beneath, a wide pause, then two
+// photographs side by side with the address set small under the first
 function Studio({ c }) {
   return (
-    <Railed rail={RAIL} className="bg-beige text-navy">
-      <div className={`${SECTION} py-28 md:py-40`}>
-        <Reveal className="mb-14 md:mb-20">
+    <Railed rail={HOME_RAIL} className={`${GROUND} text-navy`}>
+      <div className={`${SECTION} py-20 md:py-28`}>
+        <Reveal className="mb-12 md:mb-16">
           <a
             href={STUDIO_MAP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-start gap-2.5 text-[clamp(1.875rem,3.4vw,3rem)] leading-[1.05] tracking-[-0.01em] focus-visible:outline-none focus-visible:underline underline-offset-8 decoration-1"
+            className="group inline-flex items-start gap-2 text-2xl md:text-[1.75rem] font-medium leading-tight focus-visible:outline-none focus-visible:underline underline-offset-8 decoration-1"
           >
             {c.home2.studioTitle}
             <ArrowUpRight
               aria-hidden="true"
               strokeWidth={1.25}
-              className={`mt-[0.12em] w-[0.5em] h-[0.5em] shrink-0 rtl:-scale-x-100 transition-transform duration-500 ${EASE} group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5`}
+              className={`mt-[0.15em] w-[0.5em] h-[0.5em] shrink-0 rtl:-scale-x-100 transition-transform duration-500 ${EASE} group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5`}
             />
           </a>
-          <p className="mt-4 text-xs tracking-[0.14em] uppercase">{c.home2.studioNote}</p>
+          <p className="mt-1">{c.home2.studioNote}</p>
         </Reveal>
-        {/* Landscape, so the pair fills the width without towering */}
-        <div className="grid grid-cols-2 gap-3 md:gap-6">
+        <div className="grid grid-cols-2 gap-3 md:gap-5">
           {STUDIO_IMAGES.map((src, i) => (
-            <Reveal key={src} delay={i * 160} className="relative aspect-3/2 overflow-hidden">
-              <Image src={src} alt="" fill sizes="(min-width: 768px) 42vw, 45vw" className="object-cover" />
+            <Reveal key={src} as="figure" delay={i * 200}>
+              <div className="relative aspect-3/2 overflow-hidden">
+                <Image src={src} alt="" fill sizes="(min-width: 768px) 40vw, 45vw" className={`object-cover transition-transform duration-[1600ms] ${EASE} hover:scale-[1.03]`} />
+              </div>
+              {i === 0 && <figcaption className="mt-3 text-sm">{c.home2.studioPlace}</figcaption>}
             </Reveal>
           ))}
         </div>
@@ -212,7 +224,7 @@ function Studio({ c }) {
 function Pieces({ collection, title, note, linkLabel, cols, pick }) {
   const shown = productsIn(collection).slice(0, cols);
   return (
-    <Railed rail={RAIL} className="bg-beige text-navy">
+    <Railed rail={HOME_RAIL} className={`${GROUND} text-navy`}>
       <Reveal className={`${SECTION} pt-20 md:pt-28 pb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3`}>
         <div>
           <h2 className="text-2xl md:text-3xl">{title}</h2>
@@ -237,20 +249,25 @@ export default function V15Home() {
   const { c, pick, lang } = useCopy();
   const { t } = useLanguage();
   return (
-    <div className="bg-beige text-navy selection:bg-navy selection:text-beige">
+    <div className="relative isolate bg-beige text-navy selection:bg-navy selection:text-beige">
+      {PAGE_PATTERN && <div aria-hidden="true" className={PATTERN_FILL} />}
       <V15Nav />
       {/* Page changes crossfade, as on the inner pages; the menu stays put */}
       <ViewTransition enter="page-in" exit="page-out" default="none">
         <div>
           <main>
             <V15Hero homeHref={HOME} />
+            <Intro c={c} />
             <Strips c={c} t={t} lang={lang} pick={pick} />
-            <Statement c={c} />
             <Studio c={c} />
-            <Pieces collection="objects" title={c.home2.objectsTitle} note={t.navGrid.items.objects} linkLabel={c.home2.objectsLink} cols={3} pick={pick} />
-            <Pieces collection="gallery" title={c.gallery.title} note={t.navGrid.items.collection} linkLabel={c.home2.galleryLink} cols={4} pick={pick} />
+            {SHOW_PIECES && (
+              <>
+                <Pieces collection="objects" title={c.home2.objectsTitle} note={t.navGrid.items.objects} linkLabel={c.home2.objectsLink} cols={3} pick={pick} />
+                <Pieces collection="gallery" title={c.gallery.title} note={t.navGrid.items.collection} linkLabel={c.home2.galleryLink} cols={4} pick={pick} />
+              </>
+            )}
           </main>
-          <V15Footer />
+          <V15Footer onPattern={PAGE_PATTERN} />
         </div>
       </ViewTransition>
     </div>

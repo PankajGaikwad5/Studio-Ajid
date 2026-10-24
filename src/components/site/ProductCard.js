@@ -7,6 +7,31 @@ import { FINISHES } from "@/data/products";
 
 const EASE = "ease-[cubic-bezier(0.22,1,0.36,1)]";
 
+// The curated gallery's tile: the piece alone on a tall beige ground with room
+// around it, and beneath it only its name and dimensions. On hover the piece
+// crossfades slowly to its second view.
+export function GalleryCard({ product, sizes }) {
+  const { pick } = useCopy();
+  const [first, second] = product.images;
+  const view = `object-contain p-[14%] transition-[transform,opacity] duration-[1400ms] ${EASE}`;
+
+  return (
+    <Link
+      href={`/${product.collection}/${product.slug}`}
+      className="group flex flex-col bg-beige text-navy focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-navy"
+    >
+      <div className="relative aspect-4/5">
+        <Image src={first} alt={pick(product.name)} fill sizes={sizes} className={`${view} group-hover:scale-[1.03] ${second ? "group-hover:opacity-0" : ""}`} />
+        {second && <Image src={second} alt="" fill sizes={sizes} className={`${view} opacity-0 group-hover:opacity-100 group-hover:scale-[1.03]`} />}
+      </div>
+      <div className="px-4 md:px-6 pb-6 md:pb-8">
+        <h3 className="text-sm md:text-base leading-snug">{pick(product.name)}</h3>
+        <p className="mt-1 text-xs md:text-sm tabular-nums">{product.dimensions}</p>
+      </div>
+    </Link>
+  );
+}
+
 // Square beige tile: the piece centred as a cut-out, its type and finishes in
 // the top corners, name, material and size along the bottom. On hover the
 // piece lifts and crossfades to its second view.
