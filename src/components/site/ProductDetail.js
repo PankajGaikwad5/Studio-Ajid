@@ -9,6 +9,12 @@ import EnquiryForm from "./EnquiryForm";
 import Reveal from "./Reveal";
 import { useCopy } from "./useCopy";
 import { findProduct } from "@/data/products";
+import { PATTERN_BAND } from "@/components/v15/layout";
+
+// Experimental: the brand pattern behind the foot of the making film, and
+// along the bottom of the enquiry panel. Set either to false to undo.
+const STORY_PATTERN = true;
+const ENQUIRY_PATTERN = true;
 
 // Product page: breadcrumb, two views side by side with arrows, a title bar
 // with save/share/close, then the dimensions beside a short description and a
@@ -238,7 +244,10 @@ function Story({ product, w, pick }) {
         </div>
       </Reveal>
       {video && (
-        <Reveal as="figure" delay={150} className="md:col-span-6 md:col-start-7">
+        <Reveal as="figure" delay={150} className={`md:col-span-6 md:col-start-7 relative isolate ${STORY_PATTERN ? "pb-10 md:pb-14" : ""}`}>
+          {/* A band of the pattern runs out to the page edge behind the foot of
+              the film, which overlaps it */}
+          {STORY_PATTERN && <div aria-hidden="true" className={`absolute -z-10 bottom-0 -inset-x-5 md:inset-x-auto md:-start-[18%] md:-end-5 h-[34%] ${PATTERN_BAND}`} />}
           <div className="relative aspect-4/5 overflow-hidden bg-navy">
             <video
               ref={videoRef}
@@ -320,6 +329,7 @@ function BuyPanel({ product, onClose }) {
           />
         </div>
       </div>
+      {ENQUIRY_PATTERN && <div aria-hidden="true" className={`h-24 md:h-36 ${PATTERN_BAND}`} />}
     </div>
   );
 }

@@ -6,8 +6,12 @@ import gsap from "gsap";
 import { Flip } from "gsap/Flip";
 import { useLanguage } from "@/context/LanguageContext";
 import { INSTAGRAM_URL } from "@/data/studio";
+import { PATTERN_BAND } from "./layout";
 
 const SOFT = "ease-[cubic-bezier(0.22,1,0.36,1)]";
+// Experimental: a band of the brand pattern rises in along the foot of the
+// phone menu, after the links. Set to false to undo.
+const MENU_PATTERN = true;
 
 // v13's menu in v15's two colours: stone beige on a line over the hero, folding
 // into a navy column on the left once the hero leaves. Per the client there is
@@ -251,6 +255,7 @@ export default function V15Nav({ active, alwaysDocked = false }) {
           <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">{t.nav.instagram}</a>
           <button type="button" onClick={toggleLanguage} className="cursor-pointer">{t.nav.langToggle}</button>
         </div>
+        {MENU_PATTERN && <div aria-hidden="true" style={reveal(items.length + 2)} className={`-mx-6 -mb-8 mt-8 h-24 ${PATTERN_BAND} ${rise}`} />}
       </div>
     </>
   );
