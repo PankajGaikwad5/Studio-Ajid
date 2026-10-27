@@ -116,7 +116,9 @@ export default function V15Footer({ onPattern = false }) {
         {/* Without the pattern its place is kept as open space, so the footer
             keeps its height; it grows on tall screens to hold the menu */}
         {PATTERN !== "band" && <div aria-hidden="true" className="grow mt-20 md:mt-28 mb-6 min-h-24 md:min-h-36" />}
-        <div className="flex items-end justify-between gap-6 pb-4 text-xs border-b border-navy/20">
+        {/* Runs the full width of the page, under the menu column too, so it lines
+            up with the logo below (the column is always on the left) */}
+        <div className="flex items-end justify-between gap-6 pb-4 text-xs border-b border-navy/20 md:-ml-56 lg:-ml-66">
           <p>© 2026 {c.footer.rights}</p>
           <Link href="/contact" className={link}>{t.nav.contact}</Link>
         </div>

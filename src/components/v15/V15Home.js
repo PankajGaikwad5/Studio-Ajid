@@ -484,8 +484,40 @@ const STUDIO_ADDRESS_ON_PHOTO = true;
 const STUDIO_VIDEO = "/videos/studio.mp4";
 const STUDIO_POSTER = "/images/studio-poster.jpg";
 
+// Phones: the film starts small, inset in the beige, with the title in navy
+// standing just above it, and grows to fill the screen as the section scrolls
+// up into place, spreading in under the title (which stays still and turns
+// beige). Set to false for the film to fill the section from the start.
+const STUDIO_GROW = true;
+const GROW_FROM = 0.6;
+
 function Studio({ c }) {
   const images = STUDIO_PAIR ? STUDIO_IMAGES : STUDIO_IMAGES.slice(0, 1);
+  const sectionRef = useRef(null);
+  const mediaRef = useRef(null);
+  const titleRef = useRef(null);
+
+  useEffect(() => {
+    const media = mediaRef.current;
+    const label = titleRef.current;
+    if (!STUDIO_GROW || !media || !label) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const mm = gsap.matchMedia();
+    mm.add("(max-width: 767px) and (prefers-reduced-motion: no-preference)", () => {
+      const css = getComputedStyle(document.documentElement);
+      const navy = css.getPropertyValue("--color-navy").trim();
+      const beige = css.getPropertyValue("--color-beige").trim();
+      // The title never moves: it stands just above the small film, and the
+      // film grows in under it. It reads navy on the beige and turns beige
+      // while the film's edges pass beneath it.
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: sectionRef.current, start: "top bottom", end: "top top", scrub: true },
+      });
+      tl.fromTo(media, { scale: GROW_FROM }, { scale: 1, ease: "none", duration: 1 }, 0)
+        .fromTo(label, { color: navy }, { color: beige, ease: "none", duration: 0.3 }, 0.3);
+    });
+    return () => mm.revert();
+  }, []);
   const address = (
     <>
       {c.home2.studioPlace}
@@ -493,32 +525,45 @@ function Studio({ c }) {
       {c.home2.studioCity}. {c.home2.studioNote}.
     </>
   );
+  // The title, opening the studio's location on Google Maps
+  const title = (className = "") => (
+    <a
+      href={STUDIO_MAP_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`group inline-flex items-start gap-2 ${TYPE.display} font-medium focus-visible:outline-none focus-visible:underline underline-offset-8 decoration-1 ${className}`}
+    >
+      {c.home2.studioTitle}
+      <ArrowUpRight
+        aria-hidden="true"
+        strokeWidth={1.25}
+        className={`mt-[0.15em] w-[0.5em] h-[0.5em] shrink-0 rtl:-scale-x-100 transition-transform duration-500 ${EASE} group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5`}
+      />
+    </a>
+  );
   return (
-    <Railed rail={HOME_RAIL} className={`${GROUND} text-navy`}>
+    <Railed ref={sectionRef} rail={HOME_RAIL} className={`${GROUND} text-navy`}>
       {/* Per the client the whole section fits one window: the title and
-          signature on top, the photograph taking the rest of the height */}
-      <div className={`${SECTION} py-10 md:py-14 flex flex-col h-svh min-h-[560px] max-h-[1100px]`}>
-        <Reveal className="mb-8 md:mb-10 shrink-0">
-          <a
-            href={STUDIO_MAP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`group inline-flex items-start gap-2 ${TYPE.display} font-medium focus-visible:outline-none focus-visible:underline underline-offset-8 decoration-1`}
-          >
-            {c.home2.studioTitle}
-            <ArrowUpRight
-              aria-hidden="true"
-              strokeWidth={1.25}
-              className={`mt-[0.15em] w-[0.5em] h-[0.5em] shrink-0 rtl:-scale-x-100 transition-transform duration-500 ${EASE} group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5`}
-            />
-          </a>
+          signature on top, the photograph taking the rest of the height. On
+          phones the film fills the section edge to edge, with the title over it */}
+      <div className={`${SECTION} py-10 md:py-14 max-md:p-0 max-md:border-t-0 relative flex flex-col h-svh min-h-[560px] max-h-[1100px]`}>
+        <Reveal className={`${STUDIO_ADDRESS_ON_PHOTO ? "max-md:hidden" : ""} mb-8 md:mb-10 shrink-0`}>
+          {title()}
           {!STUDIO_ADDRESS_ON_PHOTO && <p className={`mt-3 ${TYPE.label} leading-[1.6]`}>{address}</p>}
           {!STUDIO_ADDRESS_ON_PHOTO && <Signature className="mt-4" />}
         </Reveal>
+        {/* Phones: the title stands still just above where the small film begins
+            (its top inset is 20% of the section at the starting size), level
+            with the address's side; the film grows in under it */}
+        {STUDIO_ADDRESS_ON_PHOTO && (
+          <div ref={titleRef} className="md:hidden absolute top-[max(2rem,calc(20%-3.5rem))] start-8 z-10 text-beige">
+            {title()}
+          </div>
+        )}
         <div className={`flex-1 min-h-0 grid gap-3 md:gap-5 ${STUDIO_PAIR ? "grid-cols-2" : ""}`}>
           {images.map((src, i) => (
             <Reveal key={src} as="figure" delay={i * 200} className="min-h-0 flex flex-col">
-              <div className="group relative flex-1 min-h-0 overflow-hidden">
+              <div ref={i === 0 ? mediaRef : undefined} className="group relative flex-1 min-h-0 overflow-hidden">
                 {STUDIO_VIDEO && i === 0 ? (
                   <video src={STUDIO_VIDEO} poster={STUDIO_POSTER} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
@@ -529,6 +574,8 @@ function Studio({ c }) {
                     {/* Neutral dark shade spreading from the bottom corner where the words sit
                         (bottom right in Arabic), never blue, so the beige words read */}
                     <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgb(0_0_0/0.7),rgb(0_0_0/0.3)_35%,transparent_70%)] rtl:bg-[radial-gradient(ellipse_at_bottom_right,rgb(0_0_0/0.7),rgb(0_0_0/0.3)_35%,transparent_70%)]" />
+                    {/* Phones: the title over the film, top left, on a soft shade of its own */}
+                    <div aria-hidden="true" className="md:hidden pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-linear-to-b from-black/50 to-transparent" />
                     <div className="absolute start-8 end-6 bottom-6 md:start-12 md:bottom-8 text-beige">
                       <p className="text-xs md:text-sm uppercase tracking-[0.15em] leading-[1.6]">{address}</p>
                       <Signature beige className="mt-4" />
