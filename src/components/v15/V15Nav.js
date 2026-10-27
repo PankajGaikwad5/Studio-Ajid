@@ -110,8 +110,10 @@ export default function V15Nav({ active, alwaysDocked = false }) {
           <nav
             ref={navRef}
             aria-label="Studio navigation"
-            className={`text-[13px] md:text-[15px] ${
-              docked ? "flex flex-col items-start gap-3 ps-5" : "flex items-center justify-between gap-5"
+            // The docked column is set a little smaller and tighter than the line
+            // over the hero, per the client; the size eases between the two
+            className={`transition-[font-size] duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+              docked ? "text-xs md:text-sm flex flex-col items-start gap-2 ps-5" : "text-[13px] md:text-[15px] flex items-center justify-between gap-5"
             }`}
           >
             {items.map(([id, href, text]) => (

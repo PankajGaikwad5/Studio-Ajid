@@ -63,15 +63,19 @@ const STUDIO_PAIR = false;
 // colour at its true proportions (the artwork is 1410 x 1198 within a 4500px
 // square, centred, so the image is scaled 4500/1410 to show just the mark). Everything follows the mark's
 // height (1em): the clear space before it is the guidelines' 0.44 of that
-// height, and the rule runs four times the height, level with the mark's foot
-// as the guidelines set their rules.
-const A_MARK = "aspect-[1410/1198] h-[1em] bg-[url(/logos/anavyblue.png)] bg-center bg-no-repeat bg-[length:319.15%_auto]";
+// height, and the rule runs four times the height. Per the client the rule
+// meets the mark at its middle, and the line and mark are the same size
+// everywhere on the site. On dark grounds the beige file is used, the
+// guidelines' logo for those backgrounds.
+const A_FRAME = "aspect-[1410/1198] h-[1em] bg-center bg-no-repeat bg-[length:319.15%_auto]";
+const A_MARK = `${A_FRAME} bg-[url(/logos/anavyblue.png)]`;
+const A_MARK_BEIGE = `${A_FRAME} bg-[url(/logos/a..png)]`;
 
-function Signature({ className = "" }) {
+function Signature({ className = "", beige = false }) {
   return (
-    <span aria-hidden="true" dir="ltr" className={`flex items-end text-base md:text-xl ${className}`}>
+    <span aria-hidden="true" dir="ltr" className={`flex items-center text-xl md:text-2xl ${className}`}>
       <span className="h-px w-[4em] bg-current" />
-      <span className={`ms-[0.44em] ${A_MARK}`} />
+      <span className={`ms-[0.44em] shrink-0 ${beige ? A_MARK_BEIGE : A_MARK}`} />
     </span>
   );
 }
@@ -89,7 +93,7 @@ function Intro({ c }) {
             aria-hidden="true"
             className="w-10 md:w-12 aspect-[700/645] bg-navy [mask:url(/logos/monogram.png)_center/contain_no-repeat]"
           />
-          <p className={`mt-2 ${TYPE.small} font-bold max-w-[32ch]`}>
+          <p className={`mt-2 text-[13px] md:text-sm leading-[1.4] font-medium max-w-[32ch]`}>
             {c.home2.introLetter && <span className="sr-only">{c.home2.introLetter} </span>}
             {c.home2.introLead}
           </p>
@@ -147,6 +151,10 @@ function Peek({ id, c, t, pick }) {
 // Five tall strips; the one pointed at or focused opens wide and previews what
 // is inside. Closed strips keep their title and a short line; phones show every
 // strip. The site never says how many projects or pieces there are.
+// The client chose the second strips (StripsTry) over these. Set to true to
+// bring the originals back.
+const SHOW_STRIPS = false;
+
 function Strips({ c, t, lang, pick }) {
   const [open, setOpen] = useState(1);
   // The gallery strip describes the broader selection, not the studio's pieces
@@ -224,6 +232,11 @@ function Strips({ c, t, lang, pick }) {
 // beige with the monogram large and faint. Set SHOW_STRIPS_TRY to false to
 // remove it.
 const SHOW_STRIPS_TRY = true;
+
+// The client's simpler open tile: only the name, a fine rule beneath it and
+// the A. below. The facts, number and rule, line and "View" are kept behind
+// this flag; set to true to bring them back.
+const TRY_DETAILS = false;
 
 const TRY_WORDS = {
   en: { hover: "Hover to open", visits: "Visits", write: "Write to us", call: "Call or WhatsApp", view: "View" },
@@ -308,14 +321,21 @@ function StripsTry({ c, t, lang, pick }) {
                   }`}
                 >
                   <dl className="space-y-4 max-w-[30ch]">
-                    {tryFacts(d.id, c, t, w).map(([label, value]) => (
+                    {TRY_DETAILS && tryFacts(d.id, c, t, w).map(([label, value]) => (
                       <div key={label}>
                         <dt className={`text-[10px] font-medium ${caps}`}>{label}</dt>
                         <dd className="mt-1 text-[15px] font-bold leading-snug">{value}</dd>
                       </div>
                     ))}
                   </dl>
-                  <div>
+                  {!TRY_DETAILS && (
+                    <div className="flex flex-col items-start self-start">
+                      <h3 className="text-[clamp(2rem,3vw,3rem)] leading-none whitespace-nowrap">{t.nav[d.id]}</h3>
+                      {/* The signature under the name, the same size as everywhere else */}
+                      <Signature beige={!accent} className="mt-4" />
+                    </div>
+                  )}
+                  {TRY_DETAILS && <div>
                     <p className="flex items-center gap-3 text-[11px] font-bold tabular-nums tracking-[0.12em]">
                       {num(i)}
                       <span aria-hidden="true" className="h-px w-8 bg-current" />
@@ -330,7 +350,7 @@ function StripsTry({ c, t, lang, pick }) {
                         className={`w-3.5 h-3.5 rtl:-scale-x-100 transition-transform duration-500 ${EASE} group-hover:translate-x-1 rtl:group-hover:-translate-x-1`}
                       />
                     </span>
-                  </div>
+                  </div>}
                 </div>
               </Link>
             );
@@ -420,17 +440,36 @@ function Residence({ c }) {
 // The studio itself, laid out like a magazine page: a bold title (opening its
 // location on Google Maps), the address in small capitals and the signature,
 // a wide pause, then one wide photograph
+// The address sits inside the photograph, beige over a soft dark shade at its
+// foot, with the signature under it; the title stays above. Set to false to put it back
+// under the title.
+const STUDIO_ADDRESS_ON_PHOTO = true;
+// A short, muted, looping film of the studio can stand in for the photograph:
+// set its path here, with a still from it as the poster. For now a stock
+// clip of Katara Cultural Village (Pexels), until the studio's own footage.
+const STUDIO_VIDEO = "/videos/studio.mp4";
+const STUDIO_POSTER = "/images/studio-poster.jpg";
+
 function Studio({ c }) {
   const images = STUDIO_PAIR ? STUDIO_IMAGES : STUDIO_IMAGES.slice(0, 1);
+  const address = (
+    <>
+      {c.home2.studioPlace}
+      <br />
+      {c.home2.studioCity}. {c.home2.studioNote}.
+    </>
+  );
   return (
     <Railed rail={HOME_RAIL} className={`${GROUND} text-navy`}>
-      <div className={`${SECTION} py-20 md:py-28`}>
-        <Reveal className="mb-12 md:mb-16">
+      {/* Per the client the whole section fits one window: the title and
+          signature on top, the photograph taking the rest of the height */}
+      <div className={`${SECTION} py-10 md:py-14 flex flex-col h-svh min-h-[560px] max-h-[1100px]`}>
+        <Reveal className="mb-8 md:mb-10 shrink-0">
           <a
             href={STUDIO_MAP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className={`group inline-flex items-start gap-2 ${TYPE.display} font-bold focus-visible:outline-none focus-visible:underline underline-offset-8 decoration-1`}
+            className={`group inline-flex items-start gap-2 ${TYPE.display} font-medium focus-visible:outline-none focus-visible:underline underline-offset-8 decoration-1`}
           >
             {c.home2.studioTitle}
             <ArrowUpRight
@@ -439,18 +478,29 @@ function Studio({ c }) {
               className={`mt-[0.15em] w-[0.5em] h-[0.5em] shrink-0 rtl:-scale-x-100 transition-transform duration-500 ${EASE} group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5`}
             />
           </a>
-          <p className={`mt-3 ${TYPE.label} leading-[1.6]`}>
-            {c.home2.studioPlace}
-            <br />
-            {c.home2.studioCity}. {c.home2.studioNote}.
-          </p>
-          <Signature className="mt-4" />
+          {!STUDIO_ADDRESS_ON_PHOTO && <p className={`mt-3 ${TYPE.label} leading-[1.6]`}>{address}</p>}
+          {!STUDIO_ADDRESS_ON_PHOTO && <Signature className="mt-4" />}
         </Reveal>
-        <div className={`grid gap-3 md:gap-5 ${STUDIO_PAIR ? "grid-cols-2" : ""}`}>
+        <div className={`flex-1 min-h-0 grid gap-3 md:gap-5 ${STUDIO_PAIR ? "grid-cols-2" : ""}`}>
           {images.map((src, i) => (
-            <Reveal key={src} as="figure" delay={i * 200}>
-              <div className={`relative overflow-hidden ${STUDIO_PAIR ? "aspect-3/2" : "aspect-5/4 md:aspect-16/9"}`}>
-                <Image src={src} alt="" fill sizes={STUDIO_PAIR ? "(min-width: 768px) 40vw, 45vw" : "(min-width: 768px) 80vw, 95vw"} className={`object-cover transition-transform duration-[1600ms] ${EASE} hover:scale-[1.03]`} />
+            <Reveal key={src} as="figure" delay={i * 200} className="min-h-0 flex flex-col">
+              <div className="group relative flex-1 min-h-0 overflow-hidden">
+                {STUDIO_VIDEO && i === 0 ? (
+                  <video src={STUDIO_VIDEO} poster={STUDIO_POSTER} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <Image src={src} alt="" fill sizes={STUDIO_PAIR ? "(min-width: 768px) 40vw, 45vw" : "(min-width: 768px) 80vw, 95vw"} className={`object-cover transition-transform duration-[1600ms] ${EASE} group-hover:scale-[1.03]`} />
+                )}
+                {STUDIO_ADDRESS_ON_PHOTO && i === 0 && (
+                  <>
+                    {/* Neutral dark shade spreading from the bottom corner where the words sit
+                        (bottom right in Arabic), never blue, so the beige words read */}
+                    <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgb(0_0_0/0.7),rgb(0_0_0/0.3)_35%,transparent_70%)] rtl:bg-[radial-gradient(ellipse_at_bottom_right,rgb(0_0_0/0.7),rgb(0_0_0/0.3)_35%,transparent_70%)]" />
+                    <div className="absolute start-8 end-6 bottom-6 md:start-12 md:bottom-8 text-beige">
+                      <p className="text-xs md:text-sm uppercase tracking-[0.15em] leading-[1.6]">{address}</p>
+                      <Signature beige className="mt-4" />
+                    </div>
+                  </>
+                )}
               </div>
               {STUDIO_PAIR && i === 0 && <figcaption className="mt-3 text-sm">{c.home2.studioPlace}</figcaption>}
             </Reveal>
@@ -501,7 +551,7 @@ export default function V15Home() {
           <main>
             <V15Hero homeHref={HOME} />
             <Intro c={c} />
-            <Strips c={c} t={t} lang={lang} pick={pick} />
+            {SHOW_STRIPS && <Strips c={c} t={t} lang={lang} pick={pick} />}
             {SHOW_STRIPS_TRY && <StripsTry c={c} t={t} lang={lang} pick={pick} />}
             {SHOW_RESIDENCE && <Residence c={c} />}
             <Studio c={c} />

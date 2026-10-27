@@ -148,13 +148,38 @@ function LogoPeek() {
     // - once the scrolling has fully come to rest inside the logo's window, the
     //   page springs back up to the footer's end.
     let timer;
+    let release;
     let busy = false;
     const footerEnd = () => area.getBoundingClientRect().top + window.scrollY - window.innerHeight;
+    const done = () => {
+      busy = false;
+      clearTimeout(release);
+      // Check again in case the glide was cut short and the page still rests in the logo
+      settle();
+    };
     const glide = (target, options) => {
       const lenis = getLenis();
       if (!lenis) return;
       busy = true;
-      lenis.scrollTo(target, { ...options, lock: true, force: true, onComplete: () => (busy = false) });
+      // A glide that is interrupted never calls onComplete, which once left the
+      // page stuck over the logo; this frees it whatever happens
+      clearTimeout(release);
+      release = setTimeout(done, options.duration * 1000 + 300);
+      lenis.scrollTo(target, { ...options, lock: true, force: true, onComplete: done });
+    };
+
+    // Waits for the scrolling to come fully to rest inside the logo, then
+    // springs back. Lenis eases out its last sub-pixel movement without firing
+    // native scroll events, so while it is still moving this tries again rather
+    // than giving up (which once left the logo half uncovered).
+    const settle = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const lenis = getLenis();
+        if (!lenis || busy || lenis.animatedScroll <= footerEnd() + 1) return;
+        if (lenis.isScrolling) return settle();
+        glide(footerEnd(), { duration: 0.9, easing: springBack });
+      }, SETTLE_AFTER);
     };
 
     const onScroll = () => {
@@ -167,14 +192,12 @@ function LogoPeek() {
         glide(end, { duration: 0.6, easing: (t) => 1 - Math.pow(1 - t, 3) });
         return;
       }
-      timer = setTimeout(() => {
-        if (busy || lenis.isScrolling || lenis.animatedScroll <= footerEnd() + 1) return;
-        glide(footerEnd(), { duration: 0.9, easing: springBack });
-      }, SETTLE_AFTER);
+      settle();
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       clearTimeout(timer);
+      clearTimeout(release);
       window.removeEventListener("scroll", onScroll);
       rise.scrollTrigger?.kill();
       rise.kill();
