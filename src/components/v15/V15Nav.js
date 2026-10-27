@@ -11,7 +11,7 @@ import { PATTERN_BAND } from "./layout";
 const SOFT = "ease-[cubic-bezier(0.22,1,0.36,1)]";
 // Experimental: a band of the brand pattern rises in along the foot of the
 // phone menu, after the links. Set to false to undo.
-const MENU_PATTERN = true;
+const MENU_PATTERN = false;
 
 // v13's menu in v15's two colours: stone beige on a line over the hero, folding
 // into a navy column on the left once the hero leaves. Per the client there is
@@ -87,6 +87,9 @@ export default function V15Nav({ active, alwaysDocked = false }) {
     <>
       <header
         dir="ltr"
+        // --peek-lift is set by the footer's logo window: as it is uncovered the
+        // menu rises with the page instead of staying over the logo
+        style={{ transform: "translateY(calc(-1 * var(--peek-lift, 0px)))" }}
         className={`max-md:hidden fixed inset-x-0 top-1/2 -translate-y-1/2 z-50 px-5 sm:px-8 md:px-10 lg:px-12 pointer-events-none transition-colors duration-500 ${
           docked ? "text-navy" : "text-beige"
         }`}

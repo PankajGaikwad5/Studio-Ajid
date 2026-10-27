@@ -23,7 +23,8 @@ import Reveal from "@/components/site/Reveal";
 // and filled with the faintest navy, a soft shadow of the ground.
 // PATTERN picks how it is used: "fill" tiles it over the whole footer as a
 // background, "band" runs it once above the rights.
-const PATTERN = "band";
+// "none" (the user, 2026-10-28) leaves the footer without it.
+const PATTERN = "none";
 // Per the client, the footer sits on a slightly darker ground: the beige with a
 // touch of the navy mixed in
 const FOOTER_GROUND = "bg-[color-mix(in_srgb,var(--color-beige),var(--color-navy)_8%)]";
@@ -34,7 +35,12 @@ const WORDS = {
   ar: { studio: "الاستوديو", call: "اتصال أو واتساب", write: "راسلنا", follow: "تابعنا" },
 };
 
-// One of the two marks, filled with the hero photograph
+// Per the client the logo under the footer is the brand's beige on the Deep
+// Navy ground (the guidelines' logo for navy). Set to false to fill it with
+// the hero photograph on beige again.
+const MARK_NAVY = true;
+
+// One of the two marks, filled with the brand beige (or the hero photograph)
 function Mark({ id, viewBox, Paths }) {
   const [x, y, w, h] = viewBox.split(" ").map(Number);
   return (
@@ -44,7 +50,11 @@ function Mark({ id, viewBox, Paths }) {
           <Paths />
         </clipPath>
       </defs>
-      <image href="/images/hero/eladio-hero-bg.webp" x={x} y={y} width={w} height={h} preserveAspectRatio="xMidYMid slice" clipPath={`url(#${id})`} />
+      {MARK_NAVY ? (
+        <rect x={x} y={y} width={w} height={h} className="fill-beige" clipPath={`url(#${id})`} />
+      ) : (
+        <image href="/images/hero/eladio-hero-bg.webp" x={x} y={y} width={w} height={h} preserveAspectRatio="xMidYMid slice" clipPath={`url(#${id})`} />
+      )}
     </svg>
   );
 }
@@ -80,7 +90,9 @@ export default function V15Footer({ onPattern = false }) {
   return (
     <>
     <Railed as="footer" id="contact" rail={onPattern ? "max-md:hidden" : `${FOOTER_GROUND} max-md:hidden`} className={`${onPattern ? "" : FOOTER_GROUND} text-navy`}>
-      <div className={`${SECTION} relative isolate pt-20 md:pt-28 pb-6 flex flex-col`}>
+      {/* Tall enough that, at the end of the page, the docked menu (centred on
+          the screen) sits wholly inside the footer */}
+      <div className={`${SECTION} relative isolate pt-20 md:pt-28 pb-6 flex flex-col md:min-h-[calc(50svh+10rem)]`}>
         {/* Fill: the pattern repeats across and down behind everything */}
         {PATTERN === "fill" && !onPattern && <div aria-hidden="true" className={PATTERN_FILL} />}
 
@@ -101,7 +113,10 @@ export default function V15Footer({ onPattern = false }) {
             className={`-mx-6 md:-mx-10 lg:-mx-14 mt-20 md:mt-28 mb-6 h-24 md:h-36 ${PATTERN_MASK} [mask-repeat:repeat-x] [mask-position:left_bottom] [mask-size:auto_100%]`}
           />
         )}
-        <div className={`flex items-end justify-between gap-6 pb-4 text-xs border-b border-navy/20 ${PATTERN === "band" ? "" : "mt-20 md:mt-28"}`}>
+        {/* Without the pattern its place is kept as open space, so the footer
+            keeps its height; it grows on tall screens to hold the menu */}
+        {PATTERN !== "band" && <div aria-hidden="true" className="grow mt-20 md:mt-28 mb-6 min-h-24 md:min-h-36" />}
+        <div className="flex items-end justify-between gap-6 pb-4 text-xs border-b border-navy/20">
           <p>© 2026 {c.footer.rights}</p>
           <Link href="/contact" className={link}>{t.nav.contact}</Link>
         </div>
@@ -121,7 +136,13 @@ export default function V15Footer({ onPattern = false }) {
 // logo eases to a stop at the footer's end: the first scroll only covers the
 // logo, and the page moves on with the next. The window sits in the
 // page, under the fixed menu, so the menu stays in front.
-const PEEK_H = "h-[45svh] md:h-[60svh]";
+// Per the client only the English mark is shown; set to true to stack the
+// Arabic one beneath it again
+const SHOW_ARABIC_MARK = false;
+// The window's height follows the width, so the logo can run the full width
+// on every screen (the English mark stands 0.19 of its width tall, both marks
+// together about 0.37)
+const PEEK_H = SHOW_ARABIC_MARK ? "h-[calc(37vw+4rem)]" : "h-[calc(19vw+4rem)]";
 const SETTLE_AFTER = 180;
 // Ease out with a slight overshoot past the footer's end, then back
 const springBack = (t) => 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);
@@ -182,7 +203,17 @@ function LogoPeek() {
       }, SETTLE_AFTER);
     };
 
+    // Lifts the fixed menu by however much of the logo window is showing, so
+    // the menu goes up with the page rather than staying over the logo
+    const root = document.documentElement;
+    const lift = () => {
+      const shown = Math.max(0, window.innerHeight - area.getBoundingClientRect().top);
+      root.style.setProperty("--peek-lift", `${shown}px`);
+    };
+    lift();
+
     const onScroll = () => {
+      lift();
       const lenis = getLenis();
       if (!lenis || busy) return;
       clearTimeout(timer);
@@ -199,6 +230,7 @@ function LogoPeek() {
       clearTimeout(timer);
       clearTimeout(release);
       window.removeEventListener("scroll", onScroll);
+      root.style.removeProperty("--peek-lift");
       rise.scrollTrigger?.kill();
       rise.kill();
     };
@@ -206,12 +238,12 @@ function LogoPeek() {
 
   return (
     <div ref={areaRef} aria-hidden="true" className={`relative ${PEEK_H} [clip-path:inset(0)]`}>
-      <div dir="ltr" className={`fixed inset-x-0 bottom-0 ${PEEK_H} flex bg-beige`}>
-        <div className="shrink-0 max-md:hidden md:w-56 lg:w-66" />
-        <div className={`flex-1 min-w-0 ${PAD} flex items-center`}>
+      <div dir="ltr" className={`fixed inset-x-0 bottom-0 ${PEEK_H} flex ${MARK_NAVY ? "bg-navy" : "bg-beige"}`}>
+        {/* The full width of the page within the side padding, on every screen */}
+        <div className={`flex-1 min-w-0 ${PAD} flex items-center justify-center`}>
           <div ref={logoRef} className="w-full flex flex-col gap-4 md:gap-6 will-change-transform">
             <Mark id="v15-mark" viewBox={LATIN_VIEWBOX} Paths={LatinMarkPaths} />
-            <Mark id="v15-mark-ar" viewBox={ARABIC_VIEWBOX} Paths={ArabicMarkPaths} />
+            {SHOW_ARABIC_MARK && <Mark id="v15-mark-ar" viewBox={ARABIC_VIEWBOX} Paths={ArabicMarkPaths} />}
           </div>
         </div>
       </div>

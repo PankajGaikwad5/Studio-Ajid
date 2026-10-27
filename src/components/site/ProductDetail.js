@@ -13,8 +13,8 @@ import { PATTERN_BAND } from "@/components/v15/layout";
 
 // Experimental: the brand pattern behind the foot of the making film, and
 // along the bottom of the enquiry panel. Set either to false to undo.
-const STORY_PATTERN = true;
-const ENQUIRY_PATTERN = true;
+const STORY_PATTERN = false;
+const ENQUIRY_PATTERN = false;
 
 // Product page: breadcrumb, two views side by side with arrows, a title bar
 // with save/share/close, then the dimensions beside a short description and a

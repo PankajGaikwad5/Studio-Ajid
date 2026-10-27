@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, ViewTransition } from "react";
+import { useEffect, useRef, useState, ViewTransition } from "react";
 import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { useCopy } from "@/components/site/useCopy";
@@ -14,7 +16,7 @@ import V15Hero from "./V15Hero";
 import V15Nav from "./V15Nav";
 import V15Footer from "./V15Footer";
 import Reveal from "@/components/site/Reveal";
-import { PAD, RAIL, SECTION, PATTERN_FILL, TYPE } from "./layout";
+import { PAD, RAIL, SECTION, PATTERN_FILL, PATTERN_BAND, TYPE } from "./layout";
 
 // v15: v13's layout in the two brand colours at their exact shades, stone beige
 // grounds and deep navy type (hairlines are the only tints). Residential and
@@ -102,6 +104,38 @@ function Intro({ c }) {
           {c.home2.intro}
         </Reveal>
       </div>
+    </Railed>
+  );
+}
+
+// The brand pattern (no. 9) as a frieze between the introduction and the work,
+// run edge to edge across the content like a carved band on a facade. It
+// drifts slowly sideways as the page scrolls past, and stands still for
+// reduced motion. Set SHOW_FRIEZE to false to remove it.
+const SHOW_FRIEZE = false;
+
+function Frieze() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const drift = gsap.fromTo(
+      el,
+      { "--drift": "0px" },
+      { "--drift": "-160px", ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true } }
+    );
+    return () => {
+      drift.scrollTrigger?.kill();
+      drift.kill();
+    };
+  }, []);
+  return (
+    <Railed rail={HOME_RAIL} className={GROUND}>
+      <Reveal aria-hidden="true" className="pb-16 md:pb-24">
+        {/* Inline, so the drift wins over the band's own mask position */}
+        <div ref={ref} style={{ maskPosition: "var(--drift, 0px) bottom" }} className={`h-24 md:h-36 ${PATTERN_BAND}`} />
+      </Reveal>
     </Railed>
   );
 }
@@ -551,6 +585,7 @@ export default function V15Home() {
           <main>
             <V15Hero homeHref={HOME} />
             <Intro c={c} />
+            {SHOW_FRIEZE && <Frieze />}
             {SHOW_STRIPS && <Strips c={c} t={t} lang={lang} pick={pick} />}
             {SHOW_STRIPS_TRY && <StripsTry c={c} t={t} lang={lang} pick={pick} />}
             {SHOW_RESIDENCE && <Residence c={c} />}
