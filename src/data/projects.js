@@ -27,8 +27,10 @@ export const projects = [
         "تمنح الفتحات العميقة والسطح المتدرج وقناة الماء الضيقة العائلة أماكن للتجمع من الصباح الباكر حتى المساء، صيفًا وشتاءً.",
       ],
     },
-    cover: img("photo-1613490493576-7fde63acd811"),
+    // The client's own photographs, trying their colours in the layout
+    cover: "/images/client/residence-room.jpg",
     images: [
+      "/images/client/residence-detail.jpg",
       img("photo-1600585154340-be6161a56a0c"),
       img("photo-1600607687939-ce8a6c25118c"),
       img("photo-1600566753190-17f0baa2a6c3"),

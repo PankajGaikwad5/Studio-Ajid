@@ -5,7 +5,7 @@ import EnquiryForm, { LABEL } from "./EnquiryForm";
 import Reveal from "./Reveal";
 import { useCopy } from "./useCopy";
 import { useLanguage } from "@/context/LanguageContext";
-import { INSTAGRAM_URL } from "@/data/studio";
+import { INSTAGRAM_URL, PHONE_DISPLAY, PHONE_HREF, WHATSAPP_URL } from "@/data/studio";
 
 // The enquiry form (Send offers WhatsApp or email) beside the direct details
 export default function ContactPage() {
@@ -31,6 +31,15 @@ export default function ContactPage() {
               <p className={LABEL}>{k.directLabel}</p>
               <a href={`mailto:${t.contact.emailAddress}`} className="u-line mt-3 inline-block text-lg">
                 {t.contact.emailAddress}
+              </a>
+            </div>
+            <div>
+              <p className={LABEL}>{k.callLabel}</p>
+              <a href={PHONE_HREF} dir="ltr" className="u-line mt-3 inline-block text-lg">
+                {PHONE_DISPLAY}
+              </a>
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="u-line mt-1 block w-fit">
+                WhatsApp
               </a>
             </div>
             <div>
