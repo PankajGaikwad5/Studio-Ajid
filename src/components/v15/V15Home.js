@@ -9,13 +9,12 @@ import { useLanguage } from "@/context/LanguageContext";
 import { projects } from "@/data/projects";
 import { productsIn } from "@/data/products";
 import { STUDIO_MAP_URL, PHONE_DISPLAY } from "@/data/studio";
-import { AMarkPaths, A_MARK_VIEWBOX } from "@/components/marks";
 import { Railed, DESTINATIONS } from "@/components/alts/shared";
 import V15Hero from "./V15Hero";
 import V15Nav from "./V15Nav";
 import V15Footer from "./V15Footer";
 import Reveal from "@/components/site/Reveal";
-import { PAD, RAIL, SECTION, PATTERN_FILL } from "./layout";
+import { PAD, RAIL, SECTION, PATTERN_FILL, TYPE } from "./layout";
 
 // v15: v13's layout in the two brand colours at their exact shades, stone beige
 // grounds and deep navy type (hairlines are the only tints). Residential and
@@ -40,7 +39,8 @@ const STUDIO_IMAGES = ["/images/dieste-2.jpg", "/images/dieste-vault.jpg"];
 
 const unsplash = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&q=80&w=2000`;
 const STRIPS = DESTINATIONS.filter((d) => d.id !== "hospitality").flatMap((d) => {
-  if (d.id === "residential") return [{ ...d, id: "interiors", href: "/interiors" }];
+  // The client's own photograph, trying its colours in the layout
+  if (d.id === "residential") return [{ ...d, id: "interiors", href: "/interiors", image: "/images/client/residence-detail.jpg" }];
   if (d.id === "about") return [{ ...d, href: "/about" }];
   if (d.id === "contact") return [{ ...d, href: "/contact" }];
   // Objects sit just before the gallery
@@ -57,22 +57,29 @@ const STRIP_DETAILS = false;
 // wide one. Set to true for the pair.
 const STUDIO_PAIR = false;
 
-// A short rule, then "A.": the studio's small signature under a title
+// A long rule, then "A.": the studio's signature, sized from the brand
+// guidelines (public/ملف الهوية الارشادي.pdf). The A. is the guidelines' Icon
+// (1), the client's navy file public/logos/anavyblue.png, shown in its own
+// colour at its true proportions (the artwork is 1410 x 1198 within a 4500px
+// square, centred, so the image is scaled 4500/1410 to show just the mark). Everything follows the mark's
+// height (1em): the clear space before it is the guidelines' 0.44 of that
+// height, and the rule runs four times the height, level with the mark's foot
+// as the guidelines set their rules.
+const A_MARK = "aspect-[1410/1198] h-[1em] bg-[url(/logos/anavyblue.png)] bg-center bg-no-repeat bg-[length:319.15%_auto]";
+
 function Signature({ className = "" }) {
   return (
-    <span aria-hidden="true" dir="ltr" className={`flex items-end gap-3 ${className}`}>
-      <span className="mb-[0.2em] h-px w-14 md:w-16 bg-current" />
-      <svg viewBox={A_MARK_VIEWBOX} className="block h-5 md:h-6 w-auto fill-current">
-        <AMarkPaths />
-      </svg>
+    <span aria-hidden="true" dir="ltr" className={`flex items-end text-base md:text-xl ${className}`}>
+      <span className="h-px w-[4em] bg-current" />
+      <span className={`ms-[0.44em] ${A_MARK}`} />
     </span>
   );
 }
 
 // The first thing after the hero, per the client: a magazine opening. The
 // monogram stands as the first letter of a short paragraph set small and bold,
-// beside the larger main introduction. The logo file is beige, so it is used
-// as a mask and filled with the exact navy.
+// beside the main introduction. The logo file is beige, so it is used as a
+// mask and filled with the exact navy.
 function Intro({ c }) {
   return (
     <Railed id="about" rail={HOME_RAIL} className={`${GROUND} text-navy`}>
@@ -82,12 +89,12 @@ function Intro({ c }) {
             aria-hidden="true"
             className="w-10 md:w-12 aspect-[700/645] bg-navy [mask:url(/logos/monogram.png)_center/contain_no-repeat]"
           />
-          <p className="mt-2 text-sm md:text-[15px] font-bold leading-normal max-w-[30ch]">
+          <p className={`mt-2 ${TYPE.small} font-bold max-w-[32ch]`}>
             {c.home2.introLetter && <span className="sr-only">{c.home2.introLetter} </span>}
             {c.home2.introLead}
           </p>
         </Reveal>
-        <Reveal as="p" delay={180} className="md:col-span-7 md:col-start-6 text-base md:text-lg leading-normal text-justify max-w-[52ch]">
+        <Reveal as="p" delay={180} className={`md:col-span-7 md:col-start-6 ${TYPE.statement} text-justify max-w-[52ch]`}>
           {c.home2.intro}
         </Reveal>
       </div>
@@ -336,41 +343,74 @@ function StripsTry({ c, t, lang, pick }) {
 
 // The client's own photographs of a residence, set as a magazine spread that
 // fits one screen: the room runs full height down one side; a lead line and a
-// paragraph sit in the opposite top corner; the detail crosses the seam, partly
-// over the room, as a picture laid on a page; the signature and a way to the
-// interiors close the free corner. Phones stack them, the detail overlapping
-// the foot of the room. Set SHOW_RESIDENCE to false to remove it.
-const SHOW_RESIDENCE = true;
+// paragraph sit in the opposite top corner; the detail crosses the seam,
+// partly over the room, as a picture laid on a page; the signature and a way
+// to the interiors close the free corner. Set SHOW_RESIDENCE to false to
+// remove it.
+// Phones have their own layout (ResidencePhone).
+const SHOW_RESIDENCE = false;
 const RESIDENCE = { room: "/images/client/residence-room.jpg", detail: "/images/client/residence-detail.jpg" };
+const PHOTO = `object-cover transition-transform duration-[1600ms] ${EASE} hover:scale-[1.03]`;
+const LEAD = "text-2xl md:text-[1.625rem] leading-[1.25]";
+const BODY = "text-[15px] md:text-base leading-[1.4] text-justify";
+
+function Photo({ src, sizes, className = "", delay = 0 }) {
+  return (
+    <Reveal as="figure" delay={delay} className={`relative overflow-hidden ${className}`}>
+      <Image src={src} alt="" fill sizes={sizes} className={PHOTO} />
+    </Reveal>
+  );
+}
+
+function Closing({ c, className = "" }) {
+  return (
+    <Reveal delay={200} className={className}>
+      <Signature />
+      <Link href="/interiors" className="u-line mt-5 inline-block text-sm">{c.allProjects}</Link>
+    </Reveal>
+  );
+}
+
+// Phones: the room fills the screen with the lead set over its foot in beige;
+// below, the detail beside the paragraph, with the signature and the way in
+// closing the paragraph's column
+function ResidencePhone({ c }) {
+  return (
+    <div>
+      <Reveal as="figure" className="relative -mx-6 h-[85svh] overflow-hidden">
+        <Image src={RESIDENCE.room} alt="" fill sizes="100vw" className={PHOTO} />
+        {/* Neutral shade, never blue, under the words */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent" />
+        <p className={`absolute inset-x-0 bottom-0 p-6 pb-8 text-beige max-w-[20ch] ${LEAD}`}>{c.home2.residenceLead}</p>
+      </Reveal>
+      <div className="mt-10 grid grid-cols-[42%_1fr] gap-4 items-start">
+        <Photo src={RESIDENCE.detail} sizes="45vw" className="aspect-2/3" />
+        <div>
+          <Reveal as="p" delay={150} lang="en" className={`${BODY} hyphens-auto`}>{c.home2.residenceBody}</Reveal>
+          <Closing c={c} className="mt-6" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Residence({ c }) {
-  const photo = `object-cover transition-transform duration-[1600ms] ${EASE} hover:scale-[1.03]`;
   return (
     <Railed rail={HOME_RAIL} className={`${GROUND} text-navy`}>
       <div className={`${SECTION} py-14 md:py-16`}>
-        <div className="relative md:h-[80svh] md:min-h-[560px] md:max-h-[900px]">
-          {/* The line, large, in the top corner */}
-          <Reveal className="md:absolute md:top-0 md:start-0 md:w-[28%]">
-            <p className="text-xl md:text-[1.625rem] leading-[1.25]">{c.home2.residenceLead}</p>
-            {/* Set as the intro's paragraph */}
-            <p className="mt-4 text-[15px] md:text-base leading-[1.4] text-justify">{c.home2.residenceBody}</p>
+        {/* Wider screens: the spread */}
+        <div className="max-md:hidden relative h-[80svh] min-h-[560px] max-h-[900px]">
+          <Reveal className="absolute top-0 start-0 w-[28%]">
+            <p className={LEAD}>{c.home2.residenceLead}</p>
+            <p className={`mt-4 ${BODY}`}>{c.home2.residenceBody}</p>
           </Reveal>
+          <Photo src={RESIDENCE.room} sizes="42vw" delay={120} className="absolute! inset-y-0 end-0 w-[56%]" />
+          <Photo src={RESIDENCE.detail} sizes="18vw" delay={320} className="absolute! z-10 bottom-[8%] start-[30%] w-[21%] aspect-2/3" />
+          <Closing c={c} className="absolute bottom-0 start-0 w-[26%]" />
+        </div>
 
-          {/* The room, full height */}
-          <Reveal as="figure" delay={120} className="relative mt-10 md:mt-0 aspect-4/5 md:aspect-auto md:absolute md:inset-y-0 md:end-0 md:w-[56%] overflow-hidden">
-            <Image src={RESIDENCE.room} alt="" fill sizes="(min-width: 768px) 42vw, 95vw" className={photo} />
-          </Reveal>
-
-          {/* The detail, laid across the seam */}
-          <Reveal as="figure" delay={320} className="relative z-10 w-1/2 -mt-28 ms-6 md:m-0 aspect-2/3 md:absolute md:bottom-[8%] md:start-[30%] md:w-[21%] overflow-hidden">
-            <Image src={RESIDENCE.detail} alt="" fill sizes="(min-width: 768px) 18vw, 50vw" className={photo} />
-          </Reveal>
-
-          {/* The free corner: the signature and a way in */}
-          <Reveal delay={200} className="mt-10 md:mt-0 md:absolute md:bottom-0 md:start-0 md:w-[26%]">
-            <Signature />
-            <Link href="/interiors" className="u-line mt-6 inline-block text-sm">{c.allProjects}</Link>
-          </Reveal>
+        <div className="md:hidden">
+          <ResidencePhone c={c} />
         </div>
       </div>
     </Railed>
@@ -390,7 +430,7 @@ function Studio({ c }) {
             href={STUDIO_MAP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-start gap-2 text-[2rem] md:text-[2.5rem] font-bold leading-tight focus-visible:outline-none focus-visible:underline underline-offset-8 decoration-1"
+            className={`group inline-flex items-start gap-2 ${TYPE.display} font-bold focus-visible:outline-none focus-visible:underline underline-offset-8 decoration-1`}
           >
             {c.home2.studioTitle}
             <ArrowUpRight
@@ -399,7 +439,7 @@ function Studio({ c }) {
               className={`mt-[0.15em] w-[0.5em] h-[0.5em] shrink-0 rtl:-scale-x-100 transition-transform duration-500 ${EASE} group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5`}
             />
           </a>
-          <p className="mt-2 text-sm md:text-[15px] uppercase tracking-[0.04em] leading-relaxed">
+          <p className={`mt-3 ${TYPE.label} leading-[1.6]`}>
             {c.home2.studioPlace}
             <br />
             {c.home2.studioCity}. {c.home2.studioNote}.

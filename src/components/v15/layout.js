@@ -18,3 +18,14 @@ export const PATTERN_FILL = "absolute inset-0 -z-10 pointer-events-none bg-navy/
 
 // The same pattern run once across as a band, for single quiet moments
 export const PATTERN_BAND = "bg-navy/[0.07] [mask-image:url(/patterns/9-band.png)] [mask-repeat:repeat-x] [mask-position:left_bottom] [mask-size:auto_100%]";
+
+// Type scale taken from hermes.com, as the client asked. Their editorial feel
+// comes from wide steps between sizes: headlines 30px, statements 19px, and
+// everything else small (12-13px), with labels in spaced capitals.
+export const TYPE = {
+  display: "text-[1.625rem] md:text-[1.875rem] leading-[1.2]",
+  statement: "text-[17px] md:text-[19px] leading-[1.4]",
+  body: "text-[13px] leading-[1.45]",
+  small: "text-xs leading-[1.5]",
+  label: "text-[11px] md:text-xs uppercase tracking-[0.15em]",
+};

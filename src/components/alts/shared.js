@@ -23,10 +23,10 @@ export const DESTINATIONS = [
 
 // A full-width band whose left rail sits under the navbar. `rail` colours the
 // rail (dark behind the navbar's light labels); content fills the rest.
-export function Railed({ rail = "", className = "", children, id, as: Tag = "section" }) {
+export function Railed({ rail = "", className = "", children, id, as: Tag = "section", ref }) {
   const { isRTL } = useLanguage();
   return (
-    <Tag id={id} dir="ltr" className={`relative flex ${className}`}>
+    <Tag ref={ref} id={id} dir="ltr" className={`relative flex ${className}`}>
       <div aria-hidden="true" className={`shrink-0 ${RAIL_W} ${rail}`} />
       <div className="flex-1 min-w-0" dir={isRTL ? "rtl" : "ltr"}>
         {children}

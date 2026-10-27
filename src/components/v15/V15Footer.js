@@ -4,25 +4,29 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getLenis } from "@/components/SmoothScroll";
 import { LatinMarkPaths, ArabicMarkPaths, LATIN_VIEWBOX, ARABIC_VIEWBOX } from "@/components/marks";
 import { useCopy } from "@/components/site/useCopy";
 import { useLanguage } from "@/context/LanguageContext";
 import { INSTAGRAM_URL, STUDIO_MAP_URL, PHONE_DISPLAY, PHONE_HREF, WHATSAPP_URL } from "@/data/studio";
 import { Railed } from "@/components/alts/shared";
-import { PAD, RAIL, SECTION, PATTERN_FILL } from "./layout";
+import { PAD, RAIL, SECTION, PATTERN_FILL, TYPE } from "./layout";
 import Reveal from "@/components/site/Reveal";
 
 // v15's footer, shared by the home page and the inner pages. Per the client it
 // is quiet and exclusive: no sales lines, only the essential contact details
 // set small in four columns, a band of the brand pattern (no. 9) and the
-// rights. Then, as in the client's reference, the page lifts away to uncover
-// the full logo across the screen: the English and Arabic marks, stacked and
-// linking home, held in place beneath and rising gently as they come into view.
+// rights. Scrolling on past them uncovers the full logo beneath (the English
+// and Arabic marks, stacked); when the scrolling stops, the page springs back
+// up over it.
 // The pattern file is drawn in the page's own beige, so it is used as a mask
 // and filled with the faintest navy, a soft shadow of the ground.
 // PATTERN picks how it is used: "fill" tiles it over the whole footer as a
 // background, "band" runs it once above the rights.
 const PATTERN = "band";
+// Per the client, the footer sits on a slightly darker ground: the beige with a
+// touch of the navy mixed in
+const FOOTER_GROUND = "bg-[color-mix(in_srgb,var(--color-beige),var(--color-navy)_8%)]";
 const PATTERN_MASK = "bg-navy/[0.07] [mask-image:url(/patterns/9-band.png)]";
 
 const WORDS = {
@@ -75,16 +79,16 @@ export default function V15Footer({ onPattern = false }) {
 
   return (
     <>
-    <Railed as="footer" id="contact" rail={onPattern ? "max-md:hidden" : RAIL} className={`${onPattern ? "" : "bg-beige"} text-navy`}>
+    <Railed as="footer" id="contact" rail={onPattern ? "max-md:hidden" : `${FOOTER_GROUND} max-md:hidden`} className={`${onPattern ? "" : FOOTER_GROUND} text-navy`}>
       <div className={`${SECTION} relative isolate pt-20 md:pt-28 pb-6 flex flex-col`}>
         {/* Fill: the pattern repeats across and down behind everything */}
         {PATTERN === "fill" && !onPattern && <div aria-hidden="true" className={PATTERN_FILL} />}
 
-        <Reveal as="dl" className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6 text-sm leading-[1.8]">
+        <Reveal as="dl" className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6">
           {details.map(([label, value]) => (
             <div key={label}>
-              <dt className="text-xs">{label}</dt>
-              <dd className="mt-2">{value}</dd>
+              <dt className={TYPE.label}>{label}</dt>
+              <dd className={`mt-3 ${TYPE.body}`}>{value}</dd>
             </div>
           ))}
         </Reveal>
@@ -103,52 +107,93 @@ export default function V15Footer({ onPattern = false }) {
         </div>
       </div>
     </Railed>
-    <LogoReveal />
+    <LogoPeek />
     </>
   );
 }
 
-// The last screen: a window the footer slides up from, with the logo fixed
-// beneath it (the clip-path keeps the fixed layer to this window). The marks
-// keep the rail clear on wider screens, so the docked menu never sits on them.
-const REVEAL_H = "h-[70svh] md:h-svh";
+// The logo under the footer. It is real scroll space, so scrolling stays
+// native and smooth: the footer slides up off the logo, which waits beneath,
+// held in place (a fixed layer kept to this window by the clip-path) and rising
+// a little as it is uncovered. A moment after the scrolling stops inside it,
+// Lenis carries the page back up to the end of the footer with a small
+// overshoot, so the footer springs back over the logo. Scrolling up from the
+// logo eases to a stop at the footer's end: the first scroll only covers the
+// logo, and the page moves on with the next. The window sits in the
+// page, under the fixed menu, so the menu stays in front.
+const PEEK_H = "h-[45svh] md:h-[60svh]";
+const SETTLE_AFTER = 180;
+// Ease out with a slight overshoot past the footer's end, then back
+const springBack = (t) => 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);
 
-function LogoReveal() {
+function LogoPeek() {
   const areaRef = useRef(null);
   const logoRef = useRef(null);
 
   useEffect(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const area = areaRef.current;
+    if (!area || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     gsap.registerPlugin(ScrollTrigger);
-    const tween = gsap.fromTo(
+
+    // The logo rises the last stretch as it is uncovered
+    const rise = gsap.fromTo(
       logoRef.current,
-      { yPercent: 35 },
-      {
-        yPercent: 0,
-        ease: "none",
-        scrollTrigger: { trigger: areaRef.current, start: "top bottom", end: "bottom bottom", scrub: true, invalidateOnRefresh: true },
-      }
+      { yPercent: 20 },
+      { yPercent: 0, ease: "none", scrollTrigger: { trigger: area, start: "top bottom", end: "bottom bottom", scrub: true, invalidateOnRefresh: true } }
     );
+
+    // Two behaviours, both eased through Lenis so nothing jumps:
+    // - heading up out of the logo, the scroll is redirected to ease to a stop
+    //   at the footer's end, so a fresh scroll is needed to move on;
+    // - once the scrolling has fully come to rest inside the logo's window, the
+    //   page springs back up to the footer's end.
+    let timer;
+    let busy = false;
+    const footerEnd = () => area.getBoundingClientRect().top + window.scrollY - window.innerHeight;
+    const glide = (target, options) => {
+      const lenis = getLenis();
+      if (!lenis) return;
+      busy = true;
+      lenis.scrollTo(target, { ...options, lock: true, force: true, onComplete: () => (busy = false) });
+    };
+
+    const onScroll = () => {
+      const lenis = getLenis();
+      if (!lenis || busy) return;
+      clearTimeout(timer);
+      const end = footerEnd();
+      if (lenis.animatedScroll <= end + 1) return;
+      if (lenis.targetScroll < end - 1) {
+        glide(end, { duration: 0.6, easing: (t) => 1 - Math.pow(1 - t, 3) });
+        return;
+      }
+      timer = setTimeout(() => {
+        if (busy || lenis.isScrolling || lenis.animatedScroll <= footerEnd() + 1) return;
+        glide(footerEnd(), { duration: 0.9, easing: springBack });
+      }, SETTLE_AFTER);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
+      clearTimeout(timer);
+      window.removeEventListener("scroll", onScroll);
+      rise.scrollTrigger?.kill();
+      rise.kill();
     };
   }, []);
 
   return (
-    <div ref={areaRef} className={`relative ${REVEAL_H} [clip-path:inset(0)]`}>
-      <div dir="ltr" className={`fixed inset-x-0 bottom-0 ${REVEAL_H} flex bg-beige`}>
-        <div aria-hidden="true" className="shrink-0 max-md:hidden md:w-56 lg:w-66" />
+    <div ref={areaRef} aria-hidden="true" className={`relative ${PEEK_H} [clip-path:inset(0)]`}>
+      <div dir="ltr" className={`fixed inset-x-0 bottom-0 ${PEEK_H} flex bg-beige`}>
+        <div className="shrink-0 max-md:hidden md:w-56 lg:w-66" />
         <div className={`flex-1 min-w-0 ${PAD} flex items-center`}>
-          <div ref={logoRef} className="w-full will-change-transform">
-            {/* The two marks stacked, English above Arabic; together they link home */}
-            <Link href="/" aria-label="AJID — عجيد" className="flex flex-col gap-4 md:gap-6">
-              <Mark id="v15-mark" viewBox={LATIN_VIEWBOX} Paths={LatinMarkPaths} />
-              <Mark id="v15-mark-ar" viewBox={ARABIC_VIEWBOX} Paths={ArabicMarkPaths} />
-            </Link>
+          <div ref={logoRef} className="w-full flex flex-col gap-4 md:gap-6 will-change-transform">
+            <Mark id="v15-mark" viewBox={LATIN_VIEWBOX} Paths={LatinMarkPaths} />
+            <Mark id="v15-mark-ar" viewBox={ARABIC_VIEWBOX} Paths={ArabicMarkPaths} />
           </div>
         </div>
       </div>
+      {/* The shade cast by the footer's edge as it lifts away; neutral, never blue */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-linear-to-b from-black/12 to-transparent" />
     </div>
   );
 }

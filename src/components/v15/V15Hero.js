@@ -8,6 +8,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LatinMarkPaths, ArabicMarkPaths, LATIN_VIEWBOX, ARABIC_VIEWBOX } from "@/components/marks";
 
+// The client's own photograph, trying its colours in the layout; the previous
+// one was "/images/eladio-san-pedro.jpg"
+const HERO_IMAGE = "/images/client/hero.png";
+
 // The shared hero with the AJID logo in stone beige, linking to the home page.
 // On phones the words are smaller and the hero fits the visible screen (svh),
 // so the bottom word is never cut off.
@@ -89,12 +93,12 @@ export default function V15Hero({ homeHref = "/" }) {
           className="relative w-full h-full will-change-transform pointer-events-none"
         >
           <Image
-            src="/images/eladio-san-pedro.jpg"
-            alt="Studio Ajid Brick Vault Architecture"
+            src={HERO_IMAGE}
+            alt=""
             fill
             preload
             quality={90}
-            className="object-cover object-center select-none"
+            className="object-cover object-[50%_55%] select-none"
             sizes="100vw"
           />
           {/* Warm dark overlay: dims the bricks and deepens the edges so the type reads clearly */}

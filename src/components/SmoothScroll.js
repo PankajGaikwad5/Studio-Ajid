@@ -6,6 +6,11 @@ import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+// The running Lenis instance, for components that need to scroll the page
+// themselves (the footer's logo, which springs back)
+let current = null;
+export const getLenis = () => current;
+
 export default function SmoothScroll({ children }) {
   const lenisRef = useRef(null);
   const pathname = usePathname();
@@ -27,6 +32,7 @@ export default function SmoothScroll({ children }) {
     });
 
     lenisRef.current = lenis;
+    current = lenis;
 
     // Connect Lenis to ScrollTrigger
     lenis.on("scroll", ScrollTrigger.update);
@@ -47,6 +53,7 @@ export default function SmoothScroll({ children }) {
       clearTimeout(timeout);
       gsap.ticker.remove(updateLenis);
       lenis.destroy();
+      current = null;
     };
   }, []);
 
